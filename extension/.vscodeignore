@@ -1,2 +1,10 @@
 **/*.map
 **/.DS_Store
+**/.git
+**/.gitignore
+sidecar/adapters/**
+tests/**
+../tests/**
+../scripts/**
+../.git/**
+*.vsix

@@ -16,9 +16,26 @@
   "engines": {
     "vscode": "^1.90.0"
   },
-  "categories": ["AI", "Chat", "Other"],
-  "keywords": ["maestro", "orchestrator", "multi-model", "claude", "grok", "openai", "kimi", "zai", "glm", "router"],
-  "activationEvents": ["onStartupFinished"],
+  "categories": [
+    "AI",
+    "Chat",
+    "Other"
+  ],
+  "keywords": [
+    "maestro",
+    "orchestrator",
+    "multi-model",
+    "claude",
+    "grok",
+    "openai",
+    "kimi",
+    "zai",
+    "glm",
+    "router"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "main": "./extension.js",
   "icon": "images/icon.png",
   "contributes": {
@@ -27,7 +44,7 @@
         "id": "maestro.local",
         "name": "maestro",
         "fullName": "AutoSolutions.ai",
-        "description": "Maestro of Cerebellums — one agent that routes across Claude, Grok, OpenAI, Kimi, and Zai (GLM)",
+        "description": "Maestro of Cerebellums \u2014 one agent that routes across Claude, Grok, OpenAI, Kimi, and Zai (GLM)",
         "isSticky": true
       }
     ],
@@ -108,19 +125,25 @@
             "id": "maestro.open",
             "title": "Open the Maestro chat",
             "description": "Talk to one agent. Maestro routes each request to Claude, Grok, OpenAI, Kimi, or Zai.\n[Open Maestro Chat](command:maestro.openChat)",
-            "media": { "markdown": "walkthrough/open.md" }
+            "media": {
+              "markdown": "walkthrough/open.md"
+            }
           },
           {
             "id": "maestro.modes",
             "title": "Choose Ask / Agent and Auto / Fast / Ultra",
             "description": "Stay on Ask + Auto until you want file edits or a multi-model draft.\n[How it works](command:maestro.howItWorks)",
-            "media": { "markdown": "walkthrough/modes.md" }
+            "media": {
+              "markdown": "walkthrough/modes.md"
+            }
           },
           {
             "id": "maestro.doctor",
             "title": "Confirm your CLIs",
             "description": "Maestro only uses CLIs that are installed and already logged in.\n[Run Doctor](command:maestro.doctor)",
-            "media": { "markdown": "walkthrough/doctor.md" }
+            "media": {
+              "markdown": "walkthrough/doctor.md"
+            }
           }
         ]
       }
@@ -135,5 +158,14 @@
         }
       }
     }
+  },
+  "homepage": "https://github.com/autosolutionsai-didac/maestro-of-cerebellums",
+  "bugs": {
+    "url": "https://github.com/autosolutionsai-didac/maestro-of-cerebellums/issues"
+  },
+  "pricing": "Free",
+  "galleryBanner": {
+    "color": "#1e1e1e",
+    "theme": "dark"
   }
 }
