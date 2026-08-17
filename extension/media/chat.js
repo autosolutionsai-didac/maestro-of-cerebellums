@@ -14,6 +14,39 @@ let currentAssistant = null;
 let currentStatus = null;
 const emptyHtml = document.getElementById("empty")?.innerHTML || "";
 
+const FALLBACK_CATALOG = {
+  claude: [
+    { id: "claude-opus-5", label: "Opus 5" },
+    { id: "claude-sonnet-5", label: "Sonnet 5" },
+    { id: "claude-fable-5", label: "Fable 5" },
+    { id: "claude-haiku-4-5", label: "Haiku 4.5" },
+  ],
+  openai: [
+    { id: "gpt-5.6-sol", label: "GPT-5.6 Sol" },
+    { id: "gpt-5.6-terra", label: "GPT-5.6 Terra" },
+    { id: "gpt-5.6-luna", label: "GPT-5.6 Luna" },
+    { id: "gpt-5.5", label: "GPT-5.5" },
+    { id: "gpt-5.4", label: "GPT-5.4" },
+    { id: "gpt-5.4-mini", label: "GPT-5.4 Mini" },
+    { id: "gpt-5.3-codex-spark", label: "GPT-5.3 Codex Spark" },
+  ],
+  grok: [
+    { id: "grok-4.6", label: "Grok 4.6" },
+    { id: "grok-4.5", label: "Grok 4.5" },
+  ],
+  kimi: [
+    { id: "kimi-code/k3", label: "Kimi K3" },
+    { id: "kimi-code/k3-256k", label: "Kimi K3 256k" },
+    { id: "kimi-code/kimi-for-coding", label: "Kimi K2.7 Coding" },
+    { id: "kimi-code/kimi-for-coding-highspeed", label: "Kimi K2.7 Highspeed" },
+  ],
+  zai: [
+    { id: "zai/GLM-5.3", label: "GLM-5.3" },
+    { id: "zai/GLM-5.2", label: "GLM-5.2" },
+    { id: "zai/GLM-5-Turbo", label: "GLM-5 Turbo" },
+  ],
+};
+
 function setBusy(next) {
   busy = next;
   sendBtn.disabled = next;
@@ -178,7 +211,7 @@ function effortsFor(state, workerId) {
 
 function modelSelectHtml(state, selectedValue, slotName = "model") {
   const installed = installedSet(state);
-  const catalog = state.modelsByWorker || {};
+  const catalog = Object.keys(state.modelsByWorker || {}).length ? state.modelsByWorker : FALLBACK_CATALOG;
   const ids = state.workerIds || Object.keys(catalog);
   const groups = ids.map((id) => {
     const missing = !installed.has(id);
@@ -214,7 +247,7 @@ function memberRowHtml(state, pid, member, index) {
 
 function firstUnusedSlot(state, used) {
   const installed = installedSet(state);
-  const catalog = state.modelsByWorker || {};
+  const catalog = Object.keys(state.modelsByWorker || {}).length ? state.modelsByWorker : FALLBACK_CATALOG;
   const ids = [...installed, ...(state.workerIds || [])];
   for (const id of ids) {
     for (const model of catalog[id] || []) {

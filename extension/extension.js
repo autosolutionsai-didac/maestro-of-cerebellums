@@ -1,5 +1,5 @@
 const vscode = require("vscode");
-const { spawn } = require("child_process");
+const { spawn, execSync } = require("child_process");
 const http = require("http");
 const path = require("path");
 const os = require("os");
@@ -87,12 +87,37 @@ function health(port = sidecarPort) {
   });
 }
 
+function sidecarIsCurrent(info) {
+  return Boolean(info?.ok && info.name === "maestro-of-cerebellums");
+}
+
+function killListener(port) {
+  try {
+    const out = execSync(`lsof -nP -iTCP:${port} -sTCP:LISTEN -t`, { encoding: "utf8" });
+    for (const pid of out.trim().split(/\s+/).filter(Boolean)) {
+      try {
+        process.kill(Number(pid), "SIGTERM");
+      } catch {
+        // already gone
+      }
+    }
+  } catch {
+    // nothing listening
+  }
+}
+
 async function ensureSidecar(context) {
   for (let i = 0; i < 8; i += 1) {
     const existing = await health(DEFAULT_PORT);
-    if (existing?.ok) {
+    if (sidecarIsCurrent(existing)) {
       sidecarPort = DEFAULT_PORT;
       return existing;
+    }
+    if (existing?.ok) {
+      console.log(`[maestro] replacing stale sidecar (${existing.name || "unknown"}) on ${DEFAULT_PORT}`);
+      killListener(DEFAULT_PORT);
+      await new Promise((r) => setTimeout(r, 200));
+      break;
     }
     await new Promise((r) => setTimeout(r, 120));
   }
@@ -453,6 +478,8 @@ async function activate(context) {
     vscode.commands.registerCommand("maestro.restart", async () => {
       if (sidecar) sidecar.kill();
       sidecar = null;
+      killListener(DEFAULT_PORT);
+      await new Promise((r) => setTimeout(r, 200));
       const info = await ensureSidecar(context);
       updateStatus(info);
       vscode.window.showInformationMessage("Maestro sidecar restarted.");

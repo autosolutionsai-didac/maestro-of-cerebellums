@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.2
+
+- Replace a leftover fugu-local sidecar so Fusion setup lists real models (Opus 5, Sonnet 5, Sol…) instead of providers
+
 ## 0.1.1
 
 - Live on the right secondary sidebar (next to Chat / Grok / Claude Code / Codex)
