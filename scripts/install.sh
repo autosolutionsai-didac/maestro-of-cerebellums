@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 EXT="$ROOT/extension"
-PUBLISHER_DIR="maestro.maestro-of-cerebellums-0.1.0"
+PUBLISHER_DIR="autosolutionsai.maestro-of-cerebellums-0.1.0"
 
 echo "→ Checking local CLIs"
 if ! node "$EXT/sidecar/server.js" doctor; then
@@ -24,6 +24,8 @@ for dest_root in "$HOME/.cursor/extensions" "$HOME/.vscode/extensions"; do
   if [[ -d "$dest_root" || ( "$dest_root" == "$HOME/.cursor/extensions" && -d "$HOME/.cursor" ) ]]; then
     rm -f "$dest_root/fugu-local.fugu-local-0.1.0"
     install_unpacked "$dest_root"
+    # Keep the previous publisher folder so editors do not look for a missing path.
+    ln -sfn "$EXT" "$dest_root/maestro.maestro-of-cerebellums-0.1.0"
   fi
 done
 

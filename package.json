@@ -1,6 +1,7 @@
 {
   "name": "maestro-of-cerebellums",
   "private": true,
+  "author": "AutoSolutions.ai",
   "type": "module",
   "scripts": {
     "test": "node --test tests/*.test.js",

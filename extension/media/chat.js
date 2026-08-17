@@ -31,7 +31,7 @@ function addMessage(role, text) {
   if (role === "assistant") {
     const who = document.createElement("div");
     who.className = "who";
-    who.textContent = "Maestro";
+    who.textContent = "AutoSolutions.ai";
     el.appendChild(who);
   }
   const body = document.createElement("div");

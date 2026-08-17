@@ -1,6 +1,6 @@
 # Maestro of Cerebellums
 
-A local multi-model agent that runs on your machine.
+A local multi-model agent from [AutoSolutions.ai](https://autosolutions.ai).
 
 You get **one chat**. Behind it, a local sidecar classifies the request, routes it to the coding CLIs you already have (`claude`, `grok`, `codex` / OpenAI, `kimi`, `zcode` / Zai GLM), verifies hard work with a second model, and returns a single answer.
 

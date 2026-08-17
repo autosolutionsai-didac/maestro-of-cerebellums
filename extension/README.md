@@ -1,6 +1,6 @@
 # Maestro of Cerebellums
 
-One chat. Multiple local coding CLIs behind it.
+One chat. Multiple local coding CLIs behind it. Published by [AutoSolutions.ai](https://autosolutions.ai).
 
 Maestro of Cerebellums is a local multi-model orchestrator for Cursor and VS Code. You talk to a single agent. A local sidecar classifies the request, routes it to Claude, Grok, OpenAI (Codex), Kimi, or Zai/GLM (whichever you already have installed), verifies hard work, and returns one answer.
 

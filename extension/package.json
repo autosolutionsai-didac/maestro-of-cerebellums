@@ -3,7 +3,11 @@
   "displayName": "Maestro of Cerebellums",
   "description": "One chat that routes to your local Claude, Grok, OpenAI, Kimi, and Zai (GLM) CLIs. Unofficial multi-model orchestrator.",
   "version": "0.1.0",
-  "publisher": "maestro",
+  "publisher": "autosolutionsai",
+  "author": {
+    "name": "AutoSolutions.ai",
+    "url": "https://autosolutions.ai"
+  },
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -22,8 +26,8 @@
       {
         "id": "maestro.local",
         "name": "maestro",
-        "fullName": "Maestro of Cerebellums",
-        "description": "One agent that routes across Claude, Grok, OpenAI, Kimi, and Zai (GLM)",
+        "fullName": "AutoSolutions.ai",
+        "description": "Maestro of Cerebellums — one agent that routes across Claude, Grok, OpenAI, Kimi, and Zai (GLM)",
         "isSticky": true
       }
     ],
