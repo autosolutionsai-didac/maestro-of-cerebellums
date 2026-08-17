@@ -15,6 +15,14 @@ let sidebarView = null;
 let messages = [];
 let abortController = null;
 
+function themeIconUris(context) {
+  const dir = path.join(context.extensionPath, "images");
+  return {
+    light: vscode.Uri.file(path.join(dir, "infinitum-black.svg")),
+    dark: vscode.Uri.file(path.join(dir, "infinitum-white.svg")),
+  };
+}
+
 function extraPath() {
   const home = os.homedir();
   return [
@@ -352,7 +360,7 @@ async function openChat(context) {
     }
   );
   currentPanel = panel;
-  panel.iconPath = vscode.Uri.file(path.join(context.extensionPath, "images", "icon.png"));
+  panel.iconPath = themeIconUris(context);
   panel.webview.html = htmlForWebview(panel.webview, context);
   panel.onDidDispose(() => {
     if (currentPanel === panel) currentPanel = null;
@@ -510,7 +518,7 @@ async function activate(context) {
       stream.markdown(err instanceof Error ? err.message : String(err));
     }
   });
-  participant.iconPath = vscode.Uri.file(path.join(context.extensionPath, "images", "icon.png"));
+  participant.iconPath = themeIconUris(context);
   context.subscriptions.push(participant);
 }
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.3
+
+- Theme the infinity logo: white in dark mode, black in light mode
+
 ## 0.1.2
 
 - Replace a leftover fugu-local sidecar so Fusion setup lists real models (Opus 5, Sonnet 5, Sol…) instead of providers
