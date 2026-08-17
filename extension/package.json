@@ -1,0 +1,109 @@
+{
+  "name": "maestro-of-cerebellums",
+  "displayName": "Maestro of Cerebellums",
+  "description": "One chat that routes to your local Claude, Grok, OpenAI, Kimi, and Zai (GLM) CLIs. Unofficial multi-model orchestrator.",
+  "version": "0.1.0",
+  "publisher": "maestro",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/autosolutionsai-didac/maestro-of-cerebellums.git"
+  },
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": ["AI", "Chat", "Other"],
+  "keywords": ["maestro", "orchestrator", "multi-model", "claude", "grok", "openai", "kimi", "zai", "glm", "router"],
+  "activationEvents": ["onStartupFinished"],
+  "main": "./extension.js",
+  "icon": "images/icon.png",
+  "contributes": {
+    "chatParticipants": [
+      {
+        "id": "maestro.local",
+        "name": "maestro",
+        "fullName": "Maestro of Cerebellums",
+        "description": "One agent that routes across Claude, Grok, OpenAI, Kimi, and Zai (GLM)",
+        "isSticky": true
+      }
+    ],
+    "commands": [
+      {
+        "command": "maestro.openChat",
+        "title": "Maestro: Open Chat",
+        "icon": "$(comment-discussion)"
+      },
+      {
+        "command": "maestro.howItWorks",
+        "title": "Maestro: How It Works"
+      },
+      {
+        "command": "maestro.configure",
+        "title": "Maestro: Configure Fusion Panels"
+      },
+      {
+        "command": "maestro.doctor",
+        "title": "Maestro: Doctor"
+      },
+      {
+        "command": "maestro.restart",
+        "title": "Maestro: Restart Sidecar"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "maestro",
+          "title": "Maestro of Cerebellums",
+          "icon": "images/infinitum.svg"
+        }
+      ]
+    },
+    "views": {
+      "maestro": [
+        {
+          "type": "webview",
+          "id": "maestro.sidebar",
+          "name": "Maestro"
+        }
+      ]
+    },
+    "walkthroughs": [
+      {
+        "id": "maestro.gettingStarted",
+        "title": "Get started with Maestro of Cerebellums",
+        "description": "One agent chat. Local CLIs do the work behind it.",
+        "steps": [
+          {
+            "id": "maestro.open",
+            "title": "Open the Maestro chat",
+            "description": "Talk to one agent. Maestro routes each request to Claude, Grok, OpenAI, Kimi, or Zai.\n[Open Maestro Chat](command:maestro.openChat)",
+            "media": { "markdown": "walkthrough/open.md" }
+          },
+          {
+            "id": "maestro.modes",
+            "title": "Choose Ask / Agent and Auto / Fast / Ultra",
+            "description": "Stay on Ask + Auto until you want file edits or a multi-model draft.\n[How it works](command:maestro.howItWorks)",
+            "media": { "markdown": "walkthrough/modes.md" }
+          },
+          {
+            "id": "maestro.doctor",
+            "title": "Confirm your CLIs",
+            "description": "Maestro only uses CLIs that are installed and already logged in.\n[Run Doctor](command:maestro.doctor)",
+            "media": { "markdown": "walkthrough/doctor.md" }
+          }
+        ]
+      }
+    ],
+    "configuration": {
+      "title": "Maestro of Cerebellums",
+      "properties": {
+        "maestro.port": {
+          "type": "number",
+          "default": 8788,
+          "description": "Port of the local Maestro sidecar (OpenAI-compatible API)."
+        }
+      }
+    }
+  }
+}

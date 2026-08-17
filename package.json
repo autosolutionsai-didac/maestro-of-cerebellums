@@ -1,0 +1,11 @@
+{
+  "name": "maestro-of-cerebellums",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "doctor": "node extension/sidecar/server.js doctor",
+    "serve": "node extension/sidecar/server.js",
+    "install:cursor": "bash scripts/install.sh"
+  }
+}
