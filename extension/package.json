@@ -38,12 +38,19 @@
         "icon": "$(comment-discussion)"
       },
       {
+        "command": "maestro.newChat",
+        "title": "Maestro: New Chat",
+        "icon": "$(add)"
+      },
+      {
         "command": "maestro.howItWorks",
-        "title": "Maestro: How It Works"
+        "title": "Maestro: How It Works",
+        "icon": "$(question)"
       },
       {
         "command": "maestro.configure",
-        "title": "Maestro: Configure Fusion Panels"
+        "title": "Maestro: Configure Fusion Panels",
+        "icon": "$(settings-gear)"
       },
       {
         "command": "maestro.doctor",
@@ -68,7 +75,26 @@
         {
           "type": "webview",
           "id": "maestro.sidebar",
-          "name": "Maestro"
+          "name": "MAESTRO"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "maestro.newChat",
+          "when": "view == maestro.sidebar",
+          "group": "navigation"
+        },
+        {
+          "command": "maestro.howItWorks",
+          "when": "view == maestro.sidebar",
+          "group": "navigation"
+        },
+        {
+          "command": "maestro.configure",
+          "when": "view == maestro.sidebar",
+          "group": "navigation"
         }
       ]
     },

@@ -1,27 +1,27 @@
 const vscode = acquireVsCodeApi();
 const thread = document.getElementById("thread");
-const empty = document.getElementById("empty");
 const form = document.getElementById("form");
 const input = document.getElementById("input");
 const sendBtn = document.getElementById("send");
 const workersEl = document.getElementById("workers");
 const modeEl = document.getElementById("mode");
 const agentModeEl = document.getElementById("agentMode");
-const hint = document.getElementById("hint");
 const errorEl = document.getElementById("error");
+const contextBtn = document.getElementById("contextBtn");
 
 let busy = false;
 let currentAssistant = null;
 let currentStatus = null;
+const emptyHtml = document.getElementById("empty")?.innerHTML || "";
 
 function setBusy(next) {
   busy = next;
   sendBtn.disabled = next;
-  sendBtn.textContent = next ? "Working…" : "Send";
+  sendBtn.classList.toggle("busy", next);
 }
 
 function hideEmpty() {
-  if (empty) empty.remove();
+  document.getElementById("empty")?.remove();
 }
 
 function addMessage(role, text) {
@@ -72,10 +72,30 @@ function renderWorkers(workers) {
 }
 
 function updateHint() {
-  hint.textContent =
+  if (!contextBtn) return;
+  contextBtn.title =
     agentModeEl.value === "agent"
-      ? "Agent mode · workers may edit this workspace"
-      : "Ask mode · no file edits";
+      ? "Agent mode · workers may edit this workspace. Workspace context is sent automatically."
+      : "Ask mode · no file edits. Workspace context is sent automatically.";
+}
+
+function resizeInput() {
+  input.style.height = "auto";
+  input.style.height = `${Math.min(input.scrollHeight, 160)}px`;
+}
+
+function bindEmptyActions(root) {
+  root?.querySelectorAll("[data-mode]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      modeEl.value = btn.getAttribute("data-mode");
+    });
+  });
+  root?.querySelectorAll("[data-agent]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      agentModeEl.value = btn.getAttribute("data-agent");
+      updateHint();
+    });
+  });
 }
 
 form.addEventListener("submit", (event) => {
@@ -101,6 +121,7 @@ input.addEventListener("keydown", (event) => {
     form.requestSubmit();
   }
 });
+input.addEventListener("input", resizeInput);
 
 const help = document.getElementById("help");
 const configEl = document.getElementById("config");
@@ -119,14 +140,7 @@ function setConfigOpen(open) {
     vscode.postMessage({ type: "loadConfig" });
   }
 }
-document.getElementById("newChat").addEventListener("click", () => {
-  vscode.postMessage({ type: "newChat" });
-});
-document.getElementById("helpBtn").addEventListener("click", () => {
-  setHelpOpen(help.hidden);
-});
 document.getElementById("helpClose").addEventListener("click", () => setHelpOpen(false));
-document.getElementById("configBtn").addEventListener("click", () => setConfigOpen(configEl.hidden));
 document.getElementById("configClose").addEventListener("click", () => setConfigOpen(false));
 
 function effortSelect(name, value, efforts, slot) {
@@ -353,6 +367,8 @@ window.addEventListener("message", (event) => {
     renderWorkers(msg.workers);
   } else if (msg.type === "openConfig") {
     setConfigOpen(true);
+  } else if (msg.type === "openHelp") {
+    setHelpOpen(true);
   } else if (msg.type === "config") {
     renderPresetEditor(msg);
     if (msg.saved) {
@@ -401,9 +417,9 @@ window.addEventListener("message", (event) => {
     const next = document.createElement("div");
     next.className = "empty";
     next.id = "empty";
-    next.innerHTML =
-      "<strong>One agent. Several CLIs behind it.</strong>Auto picks one CLI. Quality / Value / Speed / Cheap run Fusion-style panels and fuse one answer.<span class=\"empty-hint\">Quality default = Opus 5 + GPT-5.6 Sol + Grok 4.6. Configure to swap Sonnet 5, Luna, K3…</span>";
+    next.innerHTML = emptyHtml;
     thread.appendChild(next);
+    bindEmptyActions(next);
     currentAssistant = null;
     currentStatus = null;
     setBusy(false);
@@ -412,4 +428,6 @@ window.addEventListener("message", (event) => {
 });
 
 updateHint();
+bindEmptyActions(document.getElementById("empty"));
+resizeInput();
 vscode.postMessage({ type: "ready" });

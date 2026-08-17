@@ -7,81 +7,82 @@
     <link rel="stylesheet" href="{{css}}" />
   </head>
   <body>
-    <header class="top">
-      <div class="brand">
-        <h1>Maestro of Cerebellums</h1>
-        <p>By AutoSolutions.ai. One agent. Your installed CLIs do the work behind it.</p>
-      </div>
-      <div class="workers" id="workers"></div>
-    </header>
-    <div class="controls">
-      <select id="mode" title="Routing mode">
-        <option value="auto">Auto (one CLI)</option>
-        <option value="quality">Quality (best)</option>
-        <option value="value">Value (2nd best)</option>
-        <option value="speed">Speed</option>
-        <option value="cheap">Cheap</option>
-        <option value="fast">Fast single</option>
-      </select>
-      <select id="agentMode" title="Whether workers may edit the workspace">
-        <option value="ask">Ask</option>
-        <option value="agent">Agent</option>
-      </select>
-      <button class="ghost" id="newChat" type="button">New chat</button>
-      <button class="ghost" id="configBtn" type="button">Configure</button>
-      <button class="ghost" id="helpBtn" type="button">How it works</button>
-    </div>
     <main class="thread" id="thread">
       <div class="empty" id="empty">
-        <strong>One agent. Several CLIs behind it.</strong>
-        Auto picks one CLI. Quality / Value / Speed / Cheap run Fusion-style panels and fuse one answer.
-        <span class="empty-hint">Quality default = Opus 5 + GPT-5.6 Sol + Grok 4.6. Configure to swap Sonnet 5, Luna, K3…</span>
+        <p class="empty-copy">
+          Stay on <button type="button" class="inline" data-mode="auto">Auto</button>
+          and <button type="button" class="inline" data-agent="ask">Ask</button>
+          to route one CLI. Or run a Fusion panel:
+          <button type="button" class="inline" data-mode="quality">Quality</button>,
+          <button type="button" class="inline" data-mode="value">Value</button>,
+          <button type="button" class="inline" data-mode="speed">Speed</button>,
+          <button type="button" class="inline" data-mode="cheap">Cheap</button>.
+        </p>
+        <p class="empty-or">OR</p>
+        <p class="empty-copy muted">Type below. AutoSolutions.ai never reads API keys — each CLI uses the login you already have.</p>
       </div>
     </main>
-    <aside class="help config" id="config" hidden>
-      <div class="help-head">
+
+    <aside class="sheet" id="config" hidden>
+      <div class="sheet-head">
         <h2 id="configTitle">Configure Fusion panels</h2>
-        <button class="ghost" id="configClose" type="button">Close</button>
+        <button class="icon-btn" id="configClose" type="button" title="Close">✕</button>
       </div>
-      <div class="help-body">
-        <p id="configIntro">Pick specific models (Opus 5, Sonnet 5, GPT-5.6 Sol…) and thinking effort for each category. Saved to <code>~/.maestro-of-cerebellums/config.json</code>.</p>
-        <p id="configDetected" class="help-note"></p>
+      <div class="sheet-body">
+        <p id="configIntro">Pick specific models and thinking effort for each category.</p>
+        <p id="configDetected" class="muted"></p>
         <div id="presetEditor"></div>
-        <div class="config-actions">
-          <button class="ghost" id="configReset" type="button">Reset recommendations</button>
-          <button class="send" id="configAccept" type="button">Accept recommendations</button>
-          <button class="send" id="configSave" type="button">Save</button>
+        <div class="sheet-actions">
+          <button class="ghost" id="configReset" type="button">Reset</button>
+          <button class="primary" id="configAccept" type="button">Accept</button>
+          <button class="primary" id="configSave" type="button">Save</button>
         </div>
-        <p class="help-note" id="configStatus"></p>
+        <p class="muted" id="configStatus"></p>
       </div>
     </aside>
-    <aside class="help" id="help" hidden>
-      <div class="help-head">
+
+    <aside class="sheet" id="help" hidden>
+      <div class="sheet-head">
         <h2>How Maestro works</h2>
-        <button class="ghost" id="helpClose" type="button">Close</button>
+        <button class="icon-btn" id="helpClose" type="button" title="Close">✕</button>
       </div>
-      <div class="help-body">
-        <p>You talk to one chat. A local conductor on <code>127.0.0.1:8788</code> routes each message to a CLI you already logged into. Maestro does not read API keys.</p>
+      <div class="sheet-body">
+        <p>One chat. A local conductor on <code>127.0.0.1:8788</code> routes each message to a CLI you already logged into.</p>
         <ol>
-          <li><b>Classify</b> — chat, write, code, debug, review, or plan, plus a difficulty score.</li>
-          <li><b>Plan</b> — Auto picks one CLI. Quality / Value / Speed / Cheap fan out like OpenRouter Fusion, then a judge writes one answer.</li>
-          <li><b>Run</b> — launches <code>claude</code>, <code>grok</code>, <code>codex</code> (OpenAI), <code>kimi</code>, or <code>zcode</code> (Zai/GLM).</li>
-          <li><b>Verify / escalate</b> — hard tasks get a second CLI. REVISE can promote to a stronger one.</li>
+          <li><b>Classify</b> — chat, write, code, debug, review, or plan.</li>
+          <li><b>Plan</b> — Auto picks one CLI. Quality / Value / Speed / Cheap fan out, then a judge writes one answer.</li>
+          <li><b>Run</b> — launches <code>claude</code>, <code>grok</code>, <code>codex</code>, <code>kimi</code>, or <code>zcode</code>.</li>
+          <li><b>Verify</b> — hard tasks get a second CLI. REVISE can escalate.</li>
         </ol>
-        <p><b>Quality</b> = Opus 5 + GPT-5.6 Sol + Grok 4.6, Opus 5 fuses. <b>Value</b> = Sonnet 5 + GPT-5.6 Terra. <b>Speed</b> = Grok 4.6 + Kimi K2.7 Highspeed + GLM-5 Turbo. <b>Cheap</b> = Kimi K3 + GLM-5.3. Change any of these in Configure.</p>
         <p><b>Ask</b> is read-only. <b>Agent</b> may edit this workspace.</p>
-        <p>Chips under an answer are the receipt: <code>draft: Opus 5 · synthesize: Opus 5</code>.</p>
-        <p>Commands: <b>Maestro: How It Works</b>, <b>Maestro: Doctor</b>, <b>Maestro: Restart Sidecar</b>.</p>
-        <p class="help-note">Local multi-model orchestra. First reply can take 10–30s while a CLI starts.</p>
       </div>
     </aside>
+
     <div class="error" id="error"></div>
-    <footer class="composer">
-      <form id="form">
-        <textarea id="input" placeholder="Ask Maestro…" rows="3"></textarea>
-        <div class="row">
-          <span class="chip" id="hint">Ask mode · no file edits</span>
-          <button class="send" id="send" type="submit">Send</button>
+
+    <footer class="dock">
+      <form id="form" class="composer">
+        <button class="context-btn" id="contextBtn" type="button" title="Workspace context is sent automatically">@ Add Context</button>
+        <textarea id="input" placeholder="Review the auth module…" rows="1"></textarea>
+        <div class="composer-bar">
+          <select id="mode" title="Routing mode">
+            <option value="auto">Auto</option>
+            <option value="quality">Quality</option>
+            <option value="value">Value</option>
+            <option value="speed">Speed</option>
+            <option value="cheap">Cheap</option>
+            <option value="fast">Fast</option>
+          </select>
+          <select id="agentMode" title="Whether workers may edit the workspace">
+            <option value="ask">Ask</option>
+            <option value="agent">Agent</option>
+          </select>
+          <span class="workers" id="workers"></span>
+          <button class="send" id="send" type="submit" title="Send" aria-label="Send">
+            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+              <path fill="currentColor" d="M8 3.2 3.6 7.6l.8.8L7.4 5.4V13h1.2V5.4l3 3 .8-.8z"/>
+            </svg>
+          </button>
         </div>
       </form>
     </footer>

@@ -11,6 +11,7 @@ let sidecar = null;
 let sidecarPort = DEFAULT_PORT;
 let statusBar = null;
 let currentPanel = null;
+let sidebarView = null;
 let messages = [];
 let abortController = null;
 
@@ -328,17 +329,32 @@ function openChat(context) {
   return panel;
 }
 
+function postToViews(msg) {
+  if (currentPanel) currentPanel.webview.postMessage(msg);
+  if (sidebarView) sidebarView.webview.postMessage(msg);
+}
+
+function activeWebview() {
+  if (sidebarView?.visible) return sidebarView.webview;
+  if (currentPanel) return currentPanel.webview;
+  return sidebarView?.webview || null;
+}
+
 class MaestroViewProvider {
   constructor(context) {
     this.context = context;
   }
   resolveWebviewView(webviewView) {
+    sidebarView = webviewView;
     webviewView.webview.options = {
       enableScripts: true,
       localResourceRoots: [vscode.Uri.file(path.join(this.context.extensionPath, "media"))],
     };
     webviewView.webview.html = htmlForWebview(webviewView.webview, this.context);
     webviewView.webview.onDidReceiveMessage((msg) => onWebviewMessage(webviewView.webview, msg));
+    webviewView.onDidDispose(() => {
+      if (sidebarView === webviewView) sidebarView = null;
+    });
   }
 }
 
@@ -373,8 +389,12 @@ async function activate(context) {
     const setup = await request("/v1/presets").catch(() => ({ json: {} }));
     const setupNeeded = Boolean(setup.json?.setupNeeded);
     if (setupNeeded) {
-      const panel = openChat(context);
-      setTimeout(() => panel.webview.postMessage({ type: "openConfig" }), 250);
+      const target = activeWebview();
+      if (target) target.postMessage({ type: "openConfig" });
+      else {
+        const panel = openChat(context);
+        setTimeout(() => panel.webview.postMessage({ type: "openConfig" }), 250);
+      }
       vscode.window.showInformationMessage(
         "Maestro found your installed CLIs and built recommended Fusion panels. Accept or edit them to finish setup."
       );
@@ -398,8 +418,21 @@ async function activate(context) {
       webviewOptions: { retainContextWhenHidden: true },
     }),
     vscode.commands.registerCommand("maestro.openChat", () => openChat(context)),
-    vscode.commands.registerCommand("maestro.howItWorks", () => showHowItWorks(context)),
+    vscode.commands.registerCommand("maestro.newChat", () => {
+      messages = [];
+      postToViews({ type: "reset" });
+    }),
+    vscode.commands.registerCommand("maestro.howItWorks", () => {
+      const wv = activeWebview();
+      if (wv) wv.postMessage({ type: "openHelp" });
+      else showHowItWorks(context);
+    }),
     vscode.commands.registerCommand("maestro.configure", () => {
+      const wv = activeWebview();
+      if (wv) {
+        wv.postMessage({ type: "openConfig" });
+        return;
+      }
       const panel = openChat(context);
       setTimeout(() => panel.webview.postMessage({ type: "openConfig" }), 200);
     }),
