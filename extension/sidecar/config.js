@@ -10,8 +10,9 @@ import {
   modelLabel,
   publicCatalog,
 } from "./models.js";
+import { getOpenRouterKey, maskKey, mergeOpenRouterCatalog, readStoredOpenRouter } from "./openrouter.js";
 
-export const WORKER_IDS = ["claude", "openai", "grok", "kimi", "zai"];
+export const WORKER_IDS = ["claude", "openai", "grok", "kimi", "zai", "openrouter"];
 export const EFFORTS = ["default", "low", "medium", "high", "max"];
 /** Kimi K3: low / medium / high / max (plus default = config.toml). */
 export const EFFORTS_BY_WORKER = {
@@ -20,6 +21,7 @@ export const EFFORTS_BY_WORKER = {
   grok: ["default", "low", "medium", "high"],
   kimi: ["default", "low", "medium", "high", "max"],
   zai: ["default"],
+  openrouter: ["default", "low", "medium", "high", "max"],
 };
 export const PRESET_IDS = ["quality", "value", "speed", "cheap"];
 
@@ -304,18 +306,65 @@ export function normalizePresets(input) {
 export function loadUserConfig() {
   try {
     const raw = JSON.parse(fs.readFileSync(configPath(), "utf8"));
-    return { presets: normalizePresets(raw.presets || raw) };
+    return { presets: normalizePresets(raw.presets || raw), openrouter: raw.openrouter || {} };
   } catch {
-    return { presets: normalizePresets() };
+    return { presets: normalizePresets(), openrouter: {} };
+  }
+}
+
+function readRawConfig() {
+  try {
+    return JSON.parse(fs.readFileSync(preferredConfigPath(), "utf8"));
+  } catch {
+    try {
+      return JSON.parse(fs.readFileSync(configPath(), "utf8"));
+    } catch {
+      return {};
+    }
   }
 }
 
 export function saveUserConfig(presets) {
   const file = preferredConfigPath();
   fs.mkdirSync(path.dirname(file), { recursive: true });
-  const next = { accepted: true, setupComplete: true, presets: normalizePresets(presets) };
+  const prev = readRawConfig();
+  const next = {
+    ...prev,
+    accepted: true,
+    setupComplete: true,
+    presets: normalizePresets(presets),
+  };
   fs.writeFileSync(file, `${JSON.stringify(next, null, 2)}\n`);
   return next;
+}
+
+export function saveOpenRouterSettings({ apiKey, models, clear = false } = {}) {
+  const file = preferredConfigPath();
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  const prev = readRawConfig();
+  const current = prev.openrouter && typeof prev.openrouter === "object" ? prev.openrouter : {};
+  let nextOr = { ...current };
+  if (clear) {
+    nextOr = { models: [] };
+  } else {
+    if (typeof apiKey === "string" && apiKey.trim()) nextOr.apiKey = apiKey.trim();
+    if (Array.isArray(models)) nextOr.models = models;
+  }
+  const next = { ...prev, openrouter: nextOr };
+  fs.writeFileSync(file, `${JSON.stringify(next, null, 2)}\n`);
+  return publicOpenRouter();
+}
+
+export function publicOpenRouter() {
+  const stored = readStoredOpenRouter();
+  const envKey = Boolean((process.env.OPENROUTER_API_KEY || process.env.OPENROUTER_TOKEN || "").trim());
+  const key = getOpenRouterKey();
+  return {
+    hasKey: Boolean(key),
+    fromEnv: envKey,
+    last4: maskKey(key),
+    models: mergeOpenRouterCatalog(stored.models || []),
+  };
 }
 
 export function publicPresets(workers = []) {
@@ -328,7 +377,8 @@ export function publicPresets(workers = []) {
     effortsByWorker: EFFORTS_BY_WORKER,
     workerIds: WORKER_IDS,
     providerLabels: PROVIDER_LABELS,
-    modelsByWorker: publicCatalog(),
+    modelsByWorker: publicCatalog({ openrouter: publicOpenRouter().models }),
+    openrouter: publicOpenRouter(),
     workers: workers.map((w) => ({ id: w.id, name: w.name, ok: w.ok })),
     defaults: defaultPresetMembers(),
     recommended: {

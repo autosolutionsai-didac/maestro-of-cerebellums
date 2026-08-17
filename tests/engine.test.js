@@ -129,6 +129,24 @@ test("custom user preset overrides panel and effort", () => {
   assert.equal(synth.effort, "high");
 });
 
+test("fusion panel can include an OpenRouter model", () => {
+  const workers = ["claude", "openrouter", "grok"].map((id) => fake(id));
+  const plan = resolveFusionPreset("quality", workers, {
+    quality: {
+      panel: [
+        { id: "claude", model: "claude-opus-5", effort: "max" },
+        { id: "openrouter", model: "google/gemini-3.7-flash", effort: "low" },
+      ],
+      judge: { id: "openrouter", model: "openrouter/fusion", effort: "default" },
+    },
+  });
+  assert.deepEqual(
+    plan.steps.filter((s) => s.role === "draft").map((s) => `${s.worker}:${s.model}`),
+    ["claude:claude-opus-5", "openrouter:google/gemini-3.7-flash"]
+  );
+  assert.equal(plan.steps.find((s) => s.role === "synthesize").model, "openrouter/fusion");
+});
+
 test("fusion panel can include two Claude models", () => {
   const workers = ["claude", "openai", "grok"].map((id) => fake(id));
   const plan = resolveFusionPreset("quality", workers, {

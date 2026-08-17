@@ -2,7 +2,7 @@
   "name": "maestro-of-cerebellums",
   "displayName": "Maestro of Cerebellums",
   "description": "One chat that routes to your local Claude, Grok, OpenAI, Kimi, and Zai (GLM) CLIs. Unofficial multi-model orchestrator.",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "publisher": "autosolutionsai",
   "author": {
     "name": "AutoSolutions.ai",

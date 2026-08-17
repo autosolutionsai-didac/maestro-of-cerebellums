@@ -280,6 +280,36 @@ textarea {
 }
 .primary:hover { background: var(--btn-hover); }
 
+.or-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin: 0 0 12px;
+  background: var(--hover);
+}
+.or-card h3 {
+  margin: 0 0 4px;
+  font-size: 12px;
+  color: var(--fg);
+}
+.or-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0 4px;
+}
+.or-row input {
+  flex: 1 1 160px;
+  min-width: 0;
+  background: var(--input);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 8px;
+  color: var(--fg);
+  outline: none;
+}
+.or-row input:focus { border-color: var(--focus); }
+
 .preset-card {
   border: 1px solid var(--border);
   border-radius: 8px;

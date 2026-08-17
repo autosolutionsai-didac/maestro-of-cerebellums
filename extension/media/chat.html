@@ -31,6 +31,16 @@
       <div class="sheet-body">
         <p id="configIntro">Pick specific models and thinking effort for each category.</p>
         <p id="configDetected" class="muted"></p>
+        <section class="or-card">
+          <h3>OpenRouter</h3>
+          <p class="muted">Optional. Add a key to put OpenRouter models on any Fusion panel.</p>
+          <div class="or-row">
+            <input id="orKey" type="password" autocomplete="off" placeholder="sk-or-…" />
+            <button class="primary" id="orSave" type="button">Save key</button>
+            <button class="ghost" id="orRefresh" type="button">Refresh models</button>
+          </div>
+          <p class="muted" id="orStatus"></p>
+        </section>
         <div id="presetEditor"></div>
         <div class="sheet-actions">
           <button class="ghost" id="configReset" type="button">Reset</button>
@@ -51,7 +61,7 @@
         <ol>
           <li><b>Classify</b> — chat, write, code, debug, review, or plan.</li>
           <li><b>Plan</b> — Auto picks one CLI. Quality / Value / Speed / Cheap fan out, then a judge writes one answer.</li>
-          <li><b>Run</b> — launches <code>claude</code>, <code>grok</code>, <code>codex</code>, <code>kimi</code>, or <code>zcode</code>.</li>
+          <li><b>Run</b> — launches a local CLI, or calls OpenRouter if you picked one of those models.</li>
           <li><b>Verify</b> — hard tasks get a second CLI. REVISE can escalate.</li>
         </ol>
         <p><b>Ask</b> is read-only. <b>Agent</b> may edit this workspace.</p>

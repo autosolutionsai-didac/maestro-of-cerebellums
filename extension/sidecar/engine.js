@@ -207,6 +207,8 @@ export function parseModel(model) {
     glm: "zai",
     zcode: "zai",
     codex: "openai",
+    openrouter: "openrouter",
+    or: "openrouter",
   };
   const hit = Object.keys(pins).find(
     (id) => raw === `maestro-${id}` || raw === `fugu-${id}` || raw.endsWith(`/${id}`)

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.5
+
+- Add OpenRouter as a model source: save an API key, refresh the catalog, and drop OpenRouter models onto Fusion panels
+
 ## 0.1.4
 
 - Show Maestro as a right-sidebar tab beside Chat / Claude Code / Codex / Grok

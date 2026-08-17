@@ -2,6 +2,7 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { getOpenRouterKey } from "./openrouter.js";
 
 export const EXTRA_PATHS = [
   path.join(os.homedir(), ".local", "bin"),
@@ -68,12 +69,24 @@ export const WORKER_SPECS = [
     quality: 4,
     speed: 4,
   },
+  {
+    id: "openrouter",
+    name: "OpenRouter",
+    binName: null,
+    kind: "api",
+    aliases: ["or"],
+    strengths: ["review", "plan", "debug", "code", "chat", "write"],
+    cost: 2,
+    quality: 4,
+    speed: 4,
+  },
 ];
 
 const ALIASES = {
   glm: "zai",
   zcode: "zai",
   codex: "openai",
+  or: "openrouter",
 };
 
 function resolveBin(spec, envPath) {
@@ -114,16 +127,25 @@ export function detectWorkers(enabledIds = null) {
     : null;
   return WORKER_SPECS.map((spec) => {
     const enabled = !allowed || allowed.includes(spec.id);
-    const bin = enabled ? resolveBin(spec, envPath) : null;
+    let bin = null;
     let version = null;
     let error = null;
     if (!enabled) error = "disabled";
-    else if (!bin) error = "not installed";
-    else {
-      try {
-        version = versionOf(bin, spec, envPath);
-      } catch (err) {
-        error = err instanceof Error ? err.message : String(err);
+    else if (spec.id === "openrouter") {
+      const key = getOpenRouterKey();
+      if (key) {
+        version = "OpenRouter API";
+        bin = "openrouter";
+      } else error = "API key not set";
+    } else {
+      bin = resolveBin(spec, envPath);
+      if (!bin) error = "not installed";
+      else {
+        try {
+          version = versionOf(bin, spec, envPath);
+        } catch (err) {
+          error = err instanceof Error ? err.message : String(err);
+        }
       }
     }
     return {

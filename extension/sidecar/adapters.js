@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { pathWithBins } from "./detect.js";
 import { canonicalModelId, isCliDefault } from "./models.js";
+import { chatOpenRouter } from "./openrouter.js";
 
 const DEFAULT_TIMEOUT_MS = 180_000;
 
@@ -362,12 +363,25 @@ export async function runZai(worker, { prompt, cwd, agentMode, signal, onToken, 
   }
 }
 
+export async function runOpenRouter(worker, { prompt, onToken, timeoutMs, effort, model, signal }) {
+  const text = await chatOpenRouter({
+    model: resolvedModel(worker.id, model) || "openrouter/auto",
+    prompt,
+    effort,
+    signal,
+    timeoutMs,
+  });
+  maybeToken(onToken, text);
+  return { text, raw: text, stderr: "" };
+}
+
 const RUNNERS = {
   claude: runClaude,
   grok: runGrok,
   openai: runCodex,
   kimi: runKimi,
   zai: runZai,
+  openrouter: runOpenRouter,
 };
 
 export async function runWorker(worker, opts) {

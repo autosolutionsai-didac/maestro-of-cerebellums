@@ -73,7 +73,7 @@ For each category you can:
 - Set thinking effort per model: `default`, `low`, `medium`, `high`, `max`
 - Pick the judge **model** and its effort
 
-Each pick is passed to the CLI (`claude --model claude-opus-5`, `codex -m gpt-5.6-sol`, `grok -m grok-4.6`, `kimi -m kimi-code/k3`).
+Each local pick is passed to the CLI (`claude --model claude-opus-5`, `codex -m gpt-5.6-sol`). OpenRouter picks call `https://openrouter.ai/api/v1` with your saved key (`OPENROUTER_API_KEY` also works).
 
 Effort is passed through where the CLI supports it:
 

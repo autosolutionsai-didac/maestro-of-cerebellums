@@ -47,7 +47,7 @@ export const FUSION_PRESETS = {
   },
 };
 
-const JUDGE_FALLBACK = ["claude", "grok", "openai", "kimi", "zai"];
+const JUDGE_FALLBACK = ["claude", "grok", "openai", "kimi", "zai", "openrouter"];
 
 function asMember(item) {
   if (typeof item === "string") return { id: item, model: "default", effort: "default" };

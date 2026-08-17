@@ -45,6 +45,18 @@ const FALLBACK_CATALOG = {
     { id: "zai/GLM-5.2", label: "GLM-5.2" },
     { id: "zai/GLM-5-Turbo", label: "GLM-5 Turbo" },
   ],
+  openrouter: [
+    { id: "openrouter/auto", label: "OpenRouter Auto" },
+    { id: "openrouter/fusion", label: "OpenRouter Fusion" },
+    { id: "anthropic/claude-opus-5", label: "Claude Opus 5" },
+    { id: "anthropic/claude-sonnet-5", label: "Claude Sonnet 5" },
+    { id: "openai/gpt-5.6-sol", label: "GPT-5.6 Sol" },
+    { id: "google/gemini-3.7-flash", label: "Gemini 3.7 Flash" },
+    { id: "x-ai/grok-4.6", label: "Grok 4.6" },
+    { id: "deepseek/deepseek-v4-pro-0813", label: "DeepSeek V4 Pro" },
+    { id: "moonshotai/kimi-k3", label: "Kimi K3" },
+    { id: "qwen/qwen3.8-max", label: "Qwen3.8 Max" },
+  ],
 };
 
 function setBusy(next) {
@@ -186,7 +198,26 @@ function effortSelect(name, value, efforts, slot) {
 }
 
 function installedSet(state) {
-  return new Set((state.detected || (state.workers || []).filter((w) => w.ok).map((w) => w.id)));
+  const ids = state.detected || (state.workers || []).filter((w) => w.ok).map((w) => w.id);
+  const set = new Set(ids);
+  if (state.openrouter?.hasKey) set.add("openrouter");
+  return set;
+}
+
+function renderOpenRouterStatus(state) {
+  const status = document.getElementById("orStatus");
+  const input = document.getElementById("orKey");
+  if (!status) return;
+  const info = state.openrouter || {};
+  if (info.hasKey) {
+    const count = (info.models || []).length;
+    status.textContent = info.fromEnv
+      ? `Using OPENROUTER_API_KEY from the environment${count ? ` · ${count} models` : ""}.`
+      : `Key saved (${info.last4 || "••••"})${count ? ` · ${count} models` : ""}.`;
+    if (input && !input.value) input.placeholder = info.last4 || "sk-or-…";
+  } else {
+    status.textContent = "No key yet. Panels can still use local CLIs.";
+  }
 }
 
 function providerName(state, id) {
@@ -315,9 +346,10 @@ function renderPresetEditor(state) {
       "Pick specific models (Opus 5, Sonnet 5, GPT-5.6 Sol…) and thinking effort for each category. Saved to <code>~/.maestro-of-cerebellums/config.json</code>.";
     acceptBtn.hidden = false;
   }
+  renderOpenRouterStatus(state);
   detected.textContent = installed.size
-    ? `Detected CLIs: ${[...installed].map((id) => providerName(state, id)).join(", ")}.`
-    : "No coding CLIs detected. Install Claude, Codex, Grok, Kimi, or ZCode, then reopen this panel.";
+    ? `Detected: ${[...installed].map((id) => providerName(state, id)).join(", ")}.`
+    : "No coding CLIs detected. Install Claude, Codex, Grok, Kimi, or ZCode, or add an OpenRouter key.";
   const order = ["quality", "value", "speed", "cheap"];
   presetEditor.innerHTML = order
     .map((pid) => {
@@ -361,6 +393,21 @@ function collectPresets() {
   }
   return next;
 }
+
+document.getElementById("orSave")?.addEventListener("click", () => {
+  const apiKey = document.getElementById("orKey")?.value || "";
+  if (!apiKey.trim()) {
+    document.getElementById("orStatus").textContent = "Paste an OpenRouter key first.";
+    return;
+  }
+  document.getElementById("orStatus").textContent = "Saving key…";
+  vscode.postMessage({ type: "saveOpenRouter", apiKey: apiKey.trim(), refresh: true });
+});
+document.getElementById("orRefresh")?.addEventListener("click", () => {
+  document.getElementById("orStatus").textContent = "Refreshing OpenRouter catalog…";
+  const apiKey = document.getElementById("orKey")?.value || "";
+  vscode.postMessage({ type: "saveOpenRouter", apiKey: apiKey.trim() || undefined, refresh: true });
+});
 
 document.getElementById("configSave").addEventListener("click", () => {
   configStatus.textContent = "Saving…";

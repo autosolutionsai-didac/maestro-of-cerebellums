@@ -9,6 +9,7 @@ export const PROVIDER_LABELS = {
   grok: "Grok",
   kimi: "Kimi",
   zai: "Zai",
+  openrouter: "OpenRouter",
 };
 
 export const MODEL_CATALOG = {
@@ -41,6 +42,18 @@ export const MODEL_CATALOG = {
     { id: "zai/GLM-5.3", label: "GLM-5.3", aliases: ["GLM-5.3", "glm-5.3"] },
     { id: "zai/GLM-5.2", label: "GLM-5.2", aliases: ["GLM-5.2", "glm-5.2"] },
     { id: "zai/GLM-5-Turbo", label: "GLM-5 Turbo", aliases: ["GLM-5-Turbo", "glm-5-turbo"] },
+  ],
+  openrouter: [
+    { id: "openrouter/auto", label: "OpenRouter Auto" },
+    { id: "openrouter/fusion", label: "OpenRouter Fusion" },
+    { id: "anthropic/claude-opus-5", label: "Claude Opus 5" },
+    { id: "anthropic/claude-sonnet-5", label: "Claude Sonnet 5" },
+    { id: "openai/gpt-5.6-sol", label: "GPT-5.6 Sol" },
+    { id: "google/gemini-3.7-flash", label: "Gemini 3.7 Flash" },
+    { id: "x-ai/grok-4.6", label: "Grok 4.6" },
+    { id: "deepseek/deepseek-v4-pro-0813", label: "DeepSeek V4 Pro" },
+    { id: "moonshotai/kimi-k3", label: "Kimi K3" },
+    { id: "qwen/qwen3.8-max", label: "Qwen3.8 Max" },
   ],
 };
 
@@ -105,10 +118,20 @@ export function decodeSlot(value) {
   return { id, model: canonicalModelId(id, model) };
 }
 
-export function publicCatalog() {
+export function publicCatalog(extraByWorker = {}) {
   const modelsByWorker = {};
   for (const [id, models] of Object.entries(MODEL_CATALOG)) {
     modelsByWorker[id] = models.map((m) => ({ id: m.id, label: m.label }));
+  }
+  for (const [id, extras] of Object.entries(extraByWorker || {})) {
+    const have = new Set((modelsByWorker[id] || []).map((m) => m.id));
+    const next = [...(modelsByWorker[id] || [])];
+    for (const item of extras) {
+      if (!item?.id || have.has(item.id)) continue;
+      have.add(item.id);
+      next.push({ id: item.id, label: item.label || item.id });
+    }
+    modelsByWorker[id] = next;
   }
   return modelsByWorker;
 }

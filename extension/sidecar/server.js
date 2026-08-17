@@ -205,7 +205,33 @@ const server = http.createServer(async (req, res) => {
       try {
         const body = await readBody(req);
         const saved = saveUserConfig(body.presets || body);
-        send(res, 200, { ok: true, ...publicPresets(publicStatus().workers), presets: saved.presets });
+        send(res, 200, { ok: true, ...publicPresets(publicStatus().workers) });
+      } catch (err) {
+        send(res, 400, { error: { message: err instanceof Error ? err.message : String(err) } });
+      }
+      return;
+    }
+  }
+
+  if (url.pathname === "/v1/openrouter") {
+    const { saveOpenRouterSettings, publicPresets } = await import("./config.js");
+    const { fetchOpenRouterModels, getOpenRouterKey } = await import("./openrouter.js");
+    if (req.method === "POST") {
+      if (unauthorized(req)) {
+        send(res, 401, { error: { message: "Unauthorized" } });
+        return;
+      }
+      try {
+        const body = await readBody(req);
+        if (body.clear) saveOpenRouterSettings({ clear: true });
+        else if (typeof body.apiKey === "string" && body.apiKey.trim()) {
+          saveOpenRouterSettings({ apiKey: body.apiKey.trim() });
+        }
+        if (body.refresh) {
+          const models = await fetchOpenRouterModels(getOpenRouterKey());
+          saveOpenRouterSettings({ models });
+        }
+        send(res, 200, { ok: true, ...publicPresets(publicStatus().workers) });
       } catch (err) {
         send(res, 400, { error: { message: err instanceof Error ? err.message : String(err) } });
       }

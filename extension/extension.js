@@ -304,6 +304,16 @@ async function onWebviewMessage(webview, msg) {
     await loadConfigTo(webview);
   } else if (msg.type === "saveConfig") {
     await saveConfigFrom(webview, msg.presets);
+  } else if (msg.type === "saveOpenRouter") {
+    try {
+      const result = await request("/v1/openrouter", {
+        method: "POST",
+        body: { apiKey: msg.apiKey, refresh: Boolean(msg.refresh), clear: Boolean(msg.clear) },
+      });
+      webview.postMessage({ type: "config", saved: true, ...(result.json || {}) });
+    } catch (err) {
+      webview.postMessage({ type: "error", message: err instanceof Error ? err.message : String(err) });
+    }
   }
 }
 
