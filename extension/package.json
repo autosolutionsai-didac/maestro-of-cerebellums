@@ -2,7 +2,7 @@
   "name": "maestro-of-cerebellums",
   "displayName": "Maestro of Cerebellums",
   "description": "One chat that routes to your local Claude, Grok, OpenAI, Kimi, and Zai (GLM) CLIs. Unofficial multi-model orchestrator.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "autosolutionsai",
   "author": {
     "name": "AutoSolutions.ai",
@@ -52,7 +52,7 @@
       {
         "command": "maestro.openChat",
         "title": "Maestro: Open Chat",
-        "icon": "$(comment-discussion)"
+        "icon": "images/infinitum.svg"
       },
       {
         "command": "maestro.newChat",
@@ -79,10 +79,10 @@
       }
     ],
     "viewsContainers": {
-      "activitybar": [
+      "secondarySidebar": [
         {
           "id": "maestro",
-          "title": "Maestro of Cerebellums",
+          "title": "Maestro",
           "icon": "images/infinitum.svg"
         }
       ]
@@ -92,11 +92,17 @@
         {
           "type": "webview",
           "id": "maestro.sidebar",
-          "name": "MAESTRO"
+          "name": "Maestro"
         }
       ]
     },
     "menus": {
+      "editor/title": [
+        {
+          "command": "maestro.openChat",
+          "group": "navigation"
+        }
+      ],
       "view/title": [
         {
           "command": "maestro.newChat",

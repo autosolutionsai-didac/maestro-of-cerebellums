@@ -24,7 +24,7 @@ cd ~/maestro-of-cerebellums
 
 Then reload Cursor (`Cmd+Shift+P` → **Developer: Reload Window**).
 
-Open the infinity icon in the activity bar, or run **Maestro: Open Chat**.
+Open the infinity icon in the editor title bar, the Maestro tab on the right, or run **Maestro: Open Chat**.
 
 Full in-editor guide: **Maestro: How It Works** (`extension/HOW_IT_WORKS.md`). After reload, Cursor/VS Code also shows a **Get started with Maestro of Cerebellums** walkthrough.
 

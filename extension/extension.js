@@ -304,7 +304,14 @@ async function runPrompt(webview, payload) {
   }
 }
 
-function openChat(context) {
+async function openChat(context) {
+  try {
+    await vscode.commands.executeCommand("workbench.action.focusAuxiliaryBar");
+    await vscode.commands.executeCommand("maestro.sidebar.focus");
+    if (sidebarView) return sidebarView;
+  } catch {
+    // Older editors without an auxiliary bar fall through to a panel.
+  }
   if (currentPanel) {
     currentPanel.reveal(vscode.ViewColumn.Beside);
     return currentPanel;
@@ -392,8 +399,11 @@ async function activate(context) {
       const target = activeWebview();
       if (target) target.postMessage({ type: "openConfig" });
       else {
-        const panel = openChat(context);
-        setTimeout(() => panel.webview.postMessage({ type: "openConfig" }), 250);
+        const opened = await openChat(context);
+        setTimeout(() => {
+          const wv = opened?.webview || activeWebview();
+          if (wv) wv.postMessage({ type: "openConfig" });
+        }, 250);
       }
       vscode.window.showInformationMessage(
         "Maestro found your installed CLIs and built recommended Fusion panels. Accept or edit them to finish setup."
@@ -427,14 +437,17 @@ async function activate(context) {
       if (wv) wv.postMessage({ type: "openHelp" });
       else showHowItWorks(context);
     }),
-    vscode.commands.registerCommand("maestro.configure", () => {
+    vscode.commands.registerCommand("maestro.configure", async () => {
       const wv = activeWebview();
       if (wv) {
         wv.postMessage({ type: "openConfig" });
         return;
       }
-      const panel = openChat(context);
-      setTimeout(() => panel.webview.postMessage({ type: "openConfig" }), 200);
+      const opened = await openChat(context);
+      setTimeout(() => {
+        const next = opened?.webview || activeWebview();
+        if (next) next.postMessage({ type: "openConfig" });
+      }, 200);
     }),
     vscode.commands.registerCommand("maestro.doctor", () => showDoctor()),
     vscode.commands.registerCommand("maestro.restart", async () => {

@@ -7,7 +7,7 @@ Maestro of Cerebellums is a local multi-model orchestrator for Cursor and VS Cod
 ## Open the chat
 
 1. `Cmd+Shift+P` → **Developer: Reload Window** (once, after install)
-2. Click the infinity icon in the activity bar, **or** run **Maestro: Open Chat**
+2. Click the infinity icon in the editor title bar, open the **Maestro** tab on the right, **or** run **Maestro: Open Chat**
 3. Optional: in VS Code Chat, ask **@maestro**
 
 Bottom-left status bar shows live workers, for example `Maestro · claude · grok · kimi`.

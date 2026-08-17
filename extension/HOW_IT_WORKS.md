@@ -118,7 +118,7 @@ Keep Ask on unless you want the CLIs to change the repo.
 ## How to open the chat
 
 1. Reload the window once: `Cmd+Shift+P` → **Developer: Reload Window**
-2. Click the infinity icon in the activity bar, or run **Maestro: Open Chat**
+2. Click the infinity icon in the editor title bar, the Maestro tab on the right, or run **Maestro: Open Chat**
 3. In VS Code Chat you can also talk to **@maestro**
 
 Status bar (bottom left) shows which CLIs are online, for example `Maestro · claude · grok · kimi`.
