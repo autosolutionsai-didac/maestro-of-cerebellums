@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.4
+
+- Show Maestro as a right-sidebar tab beside Chat / Claude Code / Codex / Grok
+
 ## 0.1.3
 
 - Theme the infinity logo: white in dark mode, black in light mode

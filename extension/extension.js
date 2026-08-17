@@ -339,6 +339,7 @@ async function runPrompt(webview, payload) {
 
 async function openChat(context) {
   try {
+    await vscode.commands.executeCommand("workbench.view.extension.maestro");
     await vscode.commands.executeCommand("workbench.action.focusAuxiliaryBar");
     await vscode.commands.executeCommand("maestro.sidebar.focus");
     if (sidebarView) return sidebarView;
