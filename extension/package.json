@@ -2,7 +2,7 @@
   "name": "maestro-of-cerebellums",
   "displayName": "Maestro of Cerebellums",
   "description": "One chat that routes to your local Claude, Grok, OpenAI, Kimi, and Zai (GLM) CLIs. Unofficial multi-model orchestrator.",
-  "version": "0.1.5",
+  "version": "0.1.10",
   "publisher": "autosolutionsai",
   "author": {
     "name": "AutoSolutions.ai",
@@ -106,7 +106,11 @@
         "type": "maestro",
         "name": "Maestro",
         "displayName": "Maestro",
-        "description": "Maestro of Cerebellums — route across your local CLIs"
+        "description": "Maestro of Cerebellums — route across your local CLIs",
+        "icon": {
+          "light": "images/infinitum-black.svg",
+          "dark": "images/infinitum-white.svg"
+        }
       }
     ],
     "menus": {
@@ -156,8 +160,8 @@
           },
           {
             "id": "maestro.modes",
-            "title": "Choose Ask / Agent and Auto / Fast / Ultra",
-            "description": "Stay on Ask + Auto until you want file edits or a multi-model draft.\n[How it works](command:maestro.howItWorks)",
+            "title": "Choose Ask / Plan / Architect / Agent / Review",
+            "description": "Stay on Ask + Auto until you want a plan, a design, file edits, or a review.\n[How it works](command:maestro.howItWorks)",
             "media": {
               "markdown": "walkthrough/modes.md"
             }

@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.1.10
+
+- Add **Yolo** work mode: every CLI permission is pre-approved (Agent still asks before shell or network)
+
+## 0.1.9
+
+- Work modes are now Ask, Plan, Architect, Agent, and Review — each changes routing and whether CLIs may edit
+
+## 0.1.8
+
+- Fusion setup uses one action: **Save** while you have unsaved edits, **Accept** to close and return to chat
+
+## 0.1.7
+
+- Editor title-bar icon opens a Maestro chat tab in the middle editor instead of only focusing the right sidebar
+
+## 0.1.6
+
+- Per-model reasoning effort names now match each provider: Claude `xhigh`/`max`, GPT-5.6 `none`/`xhigh`/`max`, Grok 4.6 `xhigh` (no `max`), Kimi K3 `low`/`high`/`max` (no `medium`)
+
 ## 0.1.5
 
 - Add OpenRouter as a model source: save an API key, refresh the catalog, and drop OpenRouter models onto Fusion panels

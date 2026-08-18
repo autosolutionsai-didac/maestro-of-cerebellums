@@ -3,7 +3,8 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { pathWithBins } from "./detect.js";
-import { canonicalModelId, isCliDefault } from "./models.js";
+import { canonicalModelId, isCliDefault, resolveNativeEffort } from "./models.js";
+import { allowsEdits, claudePermissionMode, codexSandbox, grokPermissionMode, isYolo } from "./workModes.js";
 import { chatOpenRouter } from "./openrouter.js";
 
 const DEFAULT_TIMEOUT_MS = 180_000;
@@ -146,34 +147,19 @@ function maybeToken(onToken, text) {
   if (onToken && text) onToken(text);
 }
 
-function normalizeEffort(effort) {
-  const value = String(effort || "default").toLowerCase();
-  if (!value || value === "default") return null;
-  if (value === "xhigh") return "max";
-  return value;
-}
-
-function applyEffort(workerId, args, effort) {
-  const level = normalizeEffort(effort);
+function applyEffort(workerId, args, effort, model) {
+  const level = resolveNativeEffort(workerId, model, effort);
   if (!level) return args;
-  if (workerId === "claude") {
-    const mapped = level === "max" ? "max" : level;
-    args.push("--effort", mapped);
-  } else if (workerId === "grok") {
-    const mapped = level === "max" ? "high" : level;
-    args.push("--reasoning-effort", mapped);
-  } else if (workerId === "openai") {
-    const mapped = level === "max" ? "xhigh" : level;
-    args.push("-c", `model_reasoning_effort=${mapped}`);
-  }
+  if (workerId === "claude") args.push("--effort", level);
+  else if (workerId === "grok") args.push("--reasoning-effort", level);
+  else if (workerId === "openai") args.push("-c", `model_reasoning_effort=${level}`);
   return args;
 }
 
-function kimiEffortEnv(effort) {
-  const level = normalizeEffort(effort);
-  if (!level || level === "off") return {};
-  const mapped = level === "xhigh" ? "max" : level;
-  return { KIMI_MODEL_THINKING_EFFORT: mapped };
+function kimiEffortEnv(model, effort) {
+  const level = resolveNativeEffort("kimi", model, effort);
+  if (!level) return {};
+  return { KIMI_MODEL_THINKING_EFFORT: level };
 }
 
 function resolvedModel(workerId, model) {
@@ -205,15 +191,17 @@ function writeZaiSettings(model) {
 }
 
 export async function runClaude(worker, { prompt, cwd, agentMode, signal, onToken, timeoutMs, effort, model }) {
-  const args = applyModel(worker.id, applyEffort(worker.id, [
+  const flags = [
     "-p",
     prompt,
     "--output-format",
     "json",
     "--permission-mode",
-    agentMode === "agent" ? "acceptEdits" : "plan",
+    claudePermissionMode(agentMode),
     "--no-session-persistence",
-  ], effort), model);
+  ];
+  if (isYolo(agentMode)) flags.splice(2, 0, "--dangerously-skip-permissions");
+  const args = applyModel(worker.id, applyEffort(worker.id, flags, effort, model), model);
   const result = await runProcess({
     bin: worker.bin,
     args,
@@ -236,8 +224,8 @@ export async function runGrok(worker, { prompt, cwd, agentMode, signal, onToken,
       "--output-format",
       "json",
       "--permission-mode",
-      agentMode === "agent" ? "acceptEdits" : "plan",
-    ], effort), model);
+      grokPermissionMode(agentMode),
+    ], effort, model), model);
     if (tmp) args.push("--prompt-file", tmp.file);
     else args.push("-p", prompt);
     const result = await runProcess({
@@ -267,11 +255,12 @@ export async function runCodex(worker, { prompt, cwd, agentMode, signal, onToken
       "--skip-git-repo-check",
       "--ephemeral",
       "-s",
-      agentMode === "agent" ? "workspace-write" : "read-only",
+      codexSandbox(agentMode),
+      ...(isYolo(agentMode) ? ["--dangerously-bypass-approvals-and-sandbox"] : []),
       "-o",
       outFile,
       "-",
-    ], effort), model);
+    ], effort, model), model);
     const result = await runProcess({
       bin: worker.bin,
       args,
@@ -296,12 +285,16 @@ export async function runCodex(worker, { prompt, cwd, agentMode, signal, onToken
 export async function runKimi(worker, { prompt, cwd, agentMode, signal, onToken, timeoutMs, effort, model }) {
   const kimiModel = resolvedModel(worker.id, model) || "kimi-code/k3";
   const args = ["-m", kimiModel, "-p", prompt, "--output-format", "text"];
-  if (agentMode === "agent") args.unshift("--auto");
+  if (isYolo(agentMode)) {
+    args.unshift("--yolo", "--auto");
+  } else if (allowsEdits(agentMode)) {
+    args.unshift("--auto");
+  }
   const result = await runProcess({
     bin: worker.bin,
     args,
     cwd,
-    env: kimiEffortEnv(effort),
+    env: kimiEffortEnv(kimiModel, effort),
     signal,
     timeoutMs,
   });
@@ -339,7 +332,7 @@ function zaiEnv() {
 }
 
 export async function runZai(worker, { prompt, cwd, agentMode, signal, onToken, timeoutMs, model }) {
-  const args = ["--prompt", prompt, "--mode", agentMode === "agent" ? "edit" : "plan"];
+  const args = ["--prompt", prompt, "--mode", allowsEdits(agentMode) ? "edit" : "plan"];
   const zaiModel = resolvedModel(worker.id, model);
   const settings = zaiModel ? writeZaiSettings(zaiModel) : null;
   if (settings) args.push("--settings", settings.file);

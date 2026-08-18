@@ -60,7 +60,7 @@ Fusion modes always draft in parallel, then fuse. Auto still picks **one** CLI (
 
 ## First-time setup
 
-On first install, Maestro detects which CLIs are on this machine and **recommends** a Quality, Value, Speed, and Cheap panel. A setup panel opens so you can accept that mix or change models and thinking effort. Nothing is saved until you click **Accept recommendations** or **Save**.
+On first install, Maestro detects which CLIs are on this machine and **recommends** a Quality, Value, Speed, and Cheap panel. A setup panel opens so you can accept that mix or change models and thinking effort. Edits turn the button into **Save**. After a save it becomes **Accept**, which closes the panel and returns you to chat.
 
 ## Configure models and thinking effort
 
@@ -70,20 +70,25 @@ For each category you can:
 
 - Add specific models (Opus 5, Sonnet 5, Fable 5, GPT-5.6 Sol/Terra/Luna, Grok 4.6, Kimi K3, GLM-5.3…)
 - Put more than one model from the same CLI on a panel (Opus 5 **and** Sonnet 5)
-- Set thinking effort per model: `default`, `low`, `medium`, `high`, `max`
+- Set thinking effort per model using **that provider’s names** (the list changes when you switch models)
 - Pick the judge **model** and its effort
 
 Each local pick is passed to the CLI (`claude --model claude-opus-5`, `codex -m gpt-5.6-sol`). OpenRouter picks call `https://openrouter.ai/api/v1` with your saved key (`OPENROUTER_API_KEY` also works).
 
-Effort is passed through where the CLI supports it:
+Effort is passed through with the provider’s own tokens (`default` omits the flag):
 
-| CLI | Flag |
-|---|---|
-| Claude | `--effort` (`low` / `medium` / `high` / `max`) |
-| Grok | `--reasoning-effort` (`max` becomes `high`) |
-| OpenAI / Codex | `model_reasoning_effort` |
-| Kimi K3 | `KIMI_MODEL_THINKING_EFFORT`: **low, medium, high, max** (K3 always thinks; `default` uses `~/.kimi-code/config.toml`) |
-| Zai | stored; ZCode has no effort flag yet |
+| Model | Flag | Levels |
+|---|---|---|
+| Claude Opus 5 / Sonnet 5 / Fable 5 | `--effort` | `low` `medium` `high` `xhigh` `max` |
+| Claude Haiku 4.5 | — | no effort control |
+| GPT-5.6 Sol / Terra / Luna | `model_reasoning_effort` | `none` `low` `medium` `high` `xhigh` `max` |
+| GPT-5.5 / 5.4 / 5.3 Codex Spark | `model_reasoning_effort` | `none` `low` `medium` `high` `xhigh` |
+| Grok 4.6 | `--reasoning-effort` | `low` `medium` `high` `xhigh` (cannot disable) |
+| Grok 4.5 | `--reasoning-effort` | `low` `medium` `high` |
+| Kimi K3 / K3 256k | `KIMI_MODEL_THINKING_EFFORT` | `low` `high` `max` (no `medium`; `default` uses `~/.kimi-code/config.toml`) |
+| Kimi K2.7 Coding | — | always thinking |
+| Zai / GLM | — | ZCode has no effort flag |
+| OpenRouter | `reasoning.effort` | per model from `supported_efforts` (`none`, `minimal`, `xhigh`, …) |
 
 Saves to `~/.maestro-of-cerebellums/config.json`. The sidecar rereads it on every request.
 
@@ -106,14 +111,30 @@ If the task is hard and at least two CLIs are available, Auto then:
 
 You can also pin a CLI from the API with `maestro-claude`, `maestro-grok`, `maestro-openai`, `maestro-kimi`, or `maestro-zai`. Fusion slugs: `maestro-quality`, `maestro-value`, `maestro-speed`, `maestro-cheap`.
 
-## Ask vs Agent
+## Work modes (Ask / Plan / Architect / Agent / Yolo / Review)
 
-| Mode | What workers may do |
-|---|---|
-| **Ask** (default) | Read / explain / propose. No file edits. |
-| **Agent** | Edit files in the current workspace. |
+Other coding agents split this the same way: Claude Code has **Plan**, Cline is **Plan vs Act**, Roo has **Architect**, Codex uses **read-only** vs **workspace-write**. Ask vs Agent was only the permission bit. Maestro now has six work modes that change **orchestration** and **permissions**.
 
-Keep Ask on unless you want the CLIs to change the repo.
+| Mode | Orchestra | Edits | Permissions | Closest analog |
+|---|---|---|---|---|
+| **Ask** (default) | One CLI answers. No verify, no fan-out. | No | Read-only | Cursor Ask, Aider ask |
+| **Plan** | One planner writes numbered steps and stops. | No | Read-only | Claude Plan, Cline Plan |
+| **Architect** | Two CLIs design in parallel; a judge unifies. | No | Read-only | Roo Architect |
+| **Agent** | Auto route. Hard work can verify / escalate. | Yes | File edits accepted; shell/network may still prompt | Cursor Agent, Claude `acceptEdits`, Codex `workspace-write` |
+| **Yolo** | Same routing as Agent. | Yes | Everything pre-approved. Nothing prompts. | Claude `--dangerously-skip-permissions`, Codex `--dangerously-bypass-approvals-and-sandbox`, Kimi `--yolo --auto` |
+| **Review** | Review-strong CLI, always a second opinion when possible. | No | Read-only | dedicated review pass |
+
+Fusion panels still run. Only **Agent** and **Yolo** let those workers write files.
+
+| CLI | Ask / Plan / Architect / Review | Agent | Yolo |
+|---|---|---|---|
+| Claude | `--permission-mode plan` | `acceptEdits` | `bypassPermissions` + `--dangerously-skip-permissions` |
+| Grok | `--permission-mode plan` | `acceptEdits` | `bypassPermissions` |
+| Codex | `-s read-only` | `workspace-write` | `danger-full-access` + `--dangerously-bypass-approvals-and-sandbox` |
+| Kimi | no auto | `--auto` | `--yolo --auto` |
+| ZCode | `--mode plan` | `edit` | `edit` |
+
+Use Yolo only in a repo you can revert. It will not stop to ask.
 
 ## How to open the chat
 

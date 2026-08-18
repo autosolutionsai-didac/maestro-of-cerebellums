@@ -1,29 +1,30 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { EFFORT_SETS, inferOpenRouterNative, resolveNativeEffort, sortEfforts } from "./models.js";
 
 const BASE = "https://openrouter.ai/api/v1";
 
 export const FEATURED_OPENROUTER = [
-  { id: "openrouter/auto", label: "OpenRouter Auto" },
-  { id: "openrouter/fusion", label: "OpenRouter Fusion" },
-  { id: "anthropic/claude-opus-5", label: "Claude Opus 5" },
-  { id: "anthropic/claude-sonnet-5", label: "Claude Sonnet 5" },
-  { id: "anthropic/claude-opus-5-fast", label: "Claude Opus 5 Fast" },
-  { id: "openai/gpt-5.6-sol", label: "GPT-5.6 Sol" },
-  { id: "openai/gpt-5.6-terra", label: "GPT-5.6 Terra" },
-  { id: "openai/gpt-5.6-luna", label: "GPT-5.6 Luna" },
-  { id: "google/gemini-3.7-flash", label: "Gemini 3.7 Flash" },
-  { id: "google/gemini-3.1-pro-preview", label: "Gemini 3.1 Pro Preview" },
-  { id: "x-ai/grok-4.6", label: "Grok 4.6" },
-  { id: "deepseek/deepseek-v4-pro-0813", label: "DeepSeek V4 Pro" },
-  { id: "deepseek/deepseek-v4-flash-0731", label: "DeepSeek V4 Flash" },
-  { id: "moonshotai/kimi-k3", label: "Kimi K3" },
-  { id: "moonshotai/kimi-k2.7-code", label: "Kimi K2.7 Code" },
-  { id: "qwen/qwen3.8-max", label: "Qwen3.8 Max" },
-  { id: "qwen/qwen3.8-27b", label: "Qwen3.8 27B" },
-  { id: "meta/muse-spark-1.2", label: "Muse Spark 1.2" },
-  { id: "bytedance-seed/seed-2.0-code", label: "Seed 2.0 Code" },
+  { id: "openrouter/auto", label: "OpenRouter Auto", efforts: [] },
+  { id: "openrouter/fusion", label: "OpenRouter Fusion", efforts: [] },
+  { id: "anthropic/claude-opus-5", label: "Claude Opus 5", efforts: EFFORT_SETS.claude5 },
+  { id: "anthropic/claude-sonnet-5", label: "Claude Sonnet 5", efforts: EFFORT_SETS.claude5 },
+  { id: "anthropic/claude-opus-5-fast", label: "Claude Opus 5 Fast", efforts: EFFORT_SETS.claude5 },
+  { id: "openai/gpt-5.6-sol", label: "GPT-5.6 Sol", efforts: EFFORT_SETS.gpt56 },
+  { id: "openai/gpt-5.6-terra", label: "GPT-5.6 Terra", efforts: EFFORT_SETS.gpt56 },
+  { id: "openai/gpt-5.6-luna", label: "GPT-5.6 Luna", efforts: EFFORT_SETS.gpt56 },
+  { id: "google/gemini-3.7-flash", label: "Gemini 3.7 Flash", efforts: ["low", "medium", "high"] },
+  { id: "google/gemini-3.1-pro-preview", label: "Gemini 3.1 Pro Preview", efforts: ["low", "medium", "high"] },
+  { id: "x-ai/grok-4.6", label: "Grok 4.6", efforts: EFFORT_SETS.grok46 },
+  { id: "deepseek/deepseek-v4-pro-0813", label: "DeepSeek V4 Pro", efforts: ["low", "high", "max"] },
+  { id: "deepseek/deepseek-v4-flash-0731", label: "DeepSeek V4 Flash", efforts: ["low", "high", "max"] },
+  { id: "moonshotai/kimi-k3", label: "Kimi K3", efforts: EFFORT_SETS.kimiK3 },
+  { id: "moonshotai/kimi-k2.7-code", label: "Kimi K2.7 Code", efforts: [] },
+  { id: "qwen/qwen3.8-max", label: "Qwen3.8 Max", efforts: ["minimal", "low", "medium", "high", "xhigh"] },
+  { id: "qwen/qwen3.8-27b", label: "Qwen3.8 27B", efforts: ["low", "medium", "xhigh"] },
+  { id: "meta/muse-spark-1.2", label: "Muse Spark 1.2", efforts: ["minimal", "low", "medium", "high", "xhigh"] },
+  { id: "bytedance-seed/seed-2.0-code", label: "Seed 2.0 Code", efforts: ["low", "medium", "high"] },
 ];
 
 function configCandidates() {
@@ -66,15 +67,31 @@ function cleanLabel(name, id) {
   return raw.replace(/^(Anthropic|OpenAI|Google|SpaceXAI|MoonshotAI|Qwen|DeepSeek|Meta):\s*/i, "") || id;
 }
 
+function nativeEffortsFromOpenRouter(item) {
+  const listed = item?.reasoning?.supported_efforts || item?.efforts;
+  if (Array.isArray(listed) && listed.length) return sortEfforts(listed);
+  const inferred = inferOpenRouterNative(item?.id);
+  return inferred || [];
+}
+
 export function mergeOpenRouterCatalog(cached = []) {
-  const seen = new Set();
-  const out = [];
+  const byId = new Map();
   for (const item of [...FEATURED_OPENROUTER, ...cached]) {
-    if (!item?.id || seen.has(item.id)) continue;
-    seen.add(item.id);
-    out.push({ id: item.id, label: item.label || cleanLabel(item.name, item.id) });
+    if (!item?.id) continue;
+    const efforts = nativeEffortsFromOpenRouter(item);
+    const prev = byId.get(item.id);
+    if (!prev) {
+      byId.set(item.id, {
+        id: item.id,
+        label: item.label || cleanLabel(item.name, item.id),
+        efforts,
+      });
+      continue;
+    }
+    if (item.label && item.label !== item.id) prev.label = item.label;
+    if (efforts.length) prev.efforts = efforts;
   }
-  return out;
+  return [...byId.values()];
 }
 
 export async function fetchOpenRouterModels(apiKey) {
@@ -93,17 +110,14 @@ export async function fetchOpenRouterModels(apiKey) {
     if (!id || id.startsWith("~") || id.includes(":batch") || id.includes("-image")) continue;
     const outs = item.architecture?.output_modalities || ["text"];
     if (!outs.includes("text")) continue;
-    mapped.push({ id, label: cleanLabel(item.name, id) });
+    mapped.push({
+      id,
+      label: cleanLabel(item.name, id),
+      efforts: nativeEffortsFromOpenRouter(item),
+    });
   }
   mapped.sort((a, b) => a.label.localeCompare(b.label));
   return mergeOpenRouterCatalog(mapped.slice(0, 120));
-}
-
-function mapEffort(effort) {
-  const value = String(effort || "default").toLowerCase();
-  if (!value || value === "default") return null;
-  if (value === "max") return "high";
-  return value;
 }
 
 export async function chatOpenRouter({ apiKey, model, prompt, effort, signal, timeoutMs }) {
@@ -120,7 +134,7 @@ export async function chatOpenRouter({ apiKey, model, prompt, effort, signal, ti
     model: slug,
     messages: [{ role: "user", content: prompt }],
   };
-  const mapped = mapEffort(effort);
+  const mapped = resolveNativeEffort("openrouter", slug, effort);
   if (mapped) payload.reasoning = { effort: mapped };
   try {
     const res = await fetch(`${BASE}/chat/completions`, {

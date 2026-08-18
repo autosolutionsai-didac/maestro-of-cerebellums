@@ -16,46 +16,46 @@ const emptyHtml = document.getElementById("empty")?.innerHTML || "";
 
 const FALLBACK_CATALOG = {
   claude: [
-    { id: "claude-opus-5", label: "Opus 5" },
-    { id: "claude-sonnet-5", label: "Sonnet 5" },
-    { id: "claude-fable-5", label: "Fable 5" },
-    { id: "claude-haiku-4-5", label: "Haiku 4.5" },
+    { id: "claude-opus-5", label: "Opus 5", efforts: ["default", "low", "medium", "high", "xhigh", "max"] },
+    { id: "claude-sonnet-5", label: "Sonnet 5", efforts: ["default", "low", "medium", "high", "xhigh", "max"] },
+    { id: "claude-fable-5", label: "Fable 5", efforts: ["default", "low", "medium", "high", "xhigh", "max"] },
+    { id: "claude-haiku-4-5", label: "Haiku 4.5", efforts: ["default"] },
   ],
   openai: [
-    { id: "gpt-5.6-sol", label: "GPT-5.6 Sol" },
-    { id: "gpt-5.6-terra", label: "GPT-5.6 Terra" },
-    { id: "gpt-5.6-luna", label: "GPT-5.6 Luna" },
-    { id: "gpt-5.5", label: "GPT-5.5" },
-    { id: "gpt-5.4", label: "GPT-5.4" },
-    { id: "gpt-5.4-mini", label: "GPT-5.4 Mini" },
-    { id: "gpt-5.3-codex-spark", label: "GPT-5.3 Codex Spark" },
+    { id: "gpt-5.6-sol", label: "GPT-5.6 Sol", efforts: ["default", "none", "low", "medium", "high", "xhigh", "max"] },
+    { id: "gpt-5.6-terra", label: "GPT-5.6 Terra", efforts: ["default", "none", "low", "medium", "high", "xhigh", "max"] },
+    { id: "gpt-5.6-luna", label: "GPT-5.6 Luna", efforts: ["default", "none", "low", "medium", "high", "xhigh", "max"] },
+    { id: "gpt-5.5", label: "GPT-5.5", efforts: ["default", "none", "low", "medium", "high", "xhigh"] },
+    { id: "gpt-5.4", label: "GPT-5.4", efforts: ["default", "none", "low", "medium", "high", "xhigh"] },
+    { id: "gpt-5.4-mini", label: "GPT-5.4 Mini", efforts: ["default", "none", "low", "medium", "high", "xhigh"] },
+    { id: "gpt-5.3-codex-spark", label: "GPT-5.3 Codex Spark", efforts: ["default", "none", "low", "medium", "high", "xhigh"] },
   ],
   grok: [
-    { id: "grok-4.6", label: "Grok 4.6" },
-    { id: "grok-4.5", label: "Grok 4.5" },
+    { id: "grok-4.6", label: "Grok 4.6", efforts: ["default", "low", "medium", "high", "xhigh"] },
+    { id: "grok-4.5", label: "Grok 4.5", efforts: ["default", "low", "medium", "high"] },
   ],
   kimi: [
-    { id: "kimi-code/k3", label: "Kimi K3" },
-    { id: "kimi-code/k3-256k", label: "Kimi K3 256k" },
-    { id: "kimi-code/kimi-for-coding", label: "Kimi K2.7 Coding" },
-    { id: "kimi-code/kimi-for-coding-highspeed", label: "Kimi K2.7 Highspeed" },
+    { id: "kimi-code/k3", label: "Kimi K3", efforts: ["default", "low", "high", "max"] },
+    { id: "kimi-code/k3-256k", label: "Kimi K3 256k", efforts: ["default", "low", "high", "max"] },
+    { id: "kimi-code/kimi-for-coding", label: "Kimi K2.7 Coding", efforts: ["default"] },
+    { id: "kimi-code/kimi-for-coding-highspeed", label: "Kimi K2.7 Highspeed", efforts: ["default"] },
   ],
   zai: [
-    { id: "zai/GLM-5.3", label: "GLM-5.3" },
-    { id: "zai/GLM-5.2", label: "GLM-5.2" },
-    { id: "zai/GLM-5-Turbo", label: "GLM-5 Turbo" },
+    { id: "zai/GLM-5.3", label: "GLM-5.3", efforts: ["default"] },
+    { id: "zai/GLM-5.2", label: "GLM-5.2", efforts: ["default"] },
+    { id: "zai/GLM-5-Turbo", label: "GLM-5 Turbo", efforts: ["default"] },
   ],
   openrouter: [
-    { id: "openrouter/auto", label: "OpenRouter Auto" },
-    { id: "openrouter/fusion", label: "OpenRouter Fusion" },
-    { id: "anthropic/claude-opus-5", label: "Claude Opus 5" },
-    { id: "anthropic/claude-sonnet-5", label: "Claude Sonnet 5" },
-    { id: "openai/gpt-5.6-sol", label: "GPT-5.6 Sol" },
-    { id: "google/gemini-3.7-flash", label: "Gemini 3.7 Flash" },
-    { id: "x-ai/grok-4.6", label: "Grok 4.6" },
-    { id: "deepseek/deepseek-v4-pro-0813", label: "DeepSeek V4 Pro" },
-    { id: "moonshotai/kimi-k3", label: "Kimi K3" },
-    { id: "qwen/qwen3.8-max", label: "Qwen3.8 Max" },
+    { id: "openrouter/auto", label: "OpenRouter Auto", efforts: ["default"] },
+    { id: "openrouter/fusion", label: "OpenRouter Fusion", efforts: ["default"] },
+    { id: "anthropic/claude-opus-5", label: "Claude Opus 5", efforts: ["default", "low", "medium", "high", "xhigh", "max"] },
+    { id: "anthropic/claude-sonnet-5", label: "Claude Sonnet 5", efforts: ["default", "low", "medium", "high", "xhigh", "max"] },
+    { id: "openai/gpt-5.6-sol", label: "GPT-5.6 Sol", efforts: ["default", "none", "low", "medium", "high", "xhigh", "max"] },
+    { id: "google/gemini-3.7-flash", label: "Gemini 3.7 Flash", efforts: ["default", "low", "medium", "high"] },
+    { id: "x-ai/grok-4.6", label: "Grok 4.6", efforts: ["default", "low", "medium", "high", "xhigh"] },
+    { id: "deepseek/deepseek-v4-pro-0813", label: "DeepSeek V4 Pro", efforts: ["default", "low", "high", "max"] },
+    { id: "moonshotai/kimi-k3", label: "Kimi K3", efforts: ["default", "low", "high", "max"] },
+    { id: "qwen/qwen3.8-max", label: "Qwen3.8 Max", efforts: ["default", "minimal", "low", "medium", "high", "xhigh"] },
   ],
 };
 
@@ -116,12 +116,28 @@ function renderWorkers(workers) {
   }
 }
 
+const WORK_HINTS = {
+  ask: "Ask — one CLI answers. Read-only. No fan-out, no file edits.",
+  plan: "Plan — one CLI explores and writes numbered steps, then stops. No edits.",
+  architect: "Architect — two CLIs design in parallel, a judge unifies. No edits.",
+  agent: "Agent — CLIs may edit this workspace. File edits are accepted; they may still ask before shell or network.",
+  yolo: "Yolo — every permission is pre-approved. CLIs will not ask. Use only if you trust this workspace.",
+  review: "Review — review-strong CLI plus a verifier. Findings only, no edits.",
+};
+
 function updateHint() {
+  const mode = agentModeEl?.value || "ask";
+  const hint = WORK_HINTS[mode] || WORK_HINTS.ask;
+  const workHint = document.getElementById("workHint");
+  if (workHint) workHint.textContent = hint;
+  if (agentModeEl) agentModeEl.title = hint;
   if (!contextBtn) return;
   contextBtn.title =
-    agentModeEl.value === "agent"
-      ? "Agent mode · workers may edit this workspace. Workspace context is sent automatically."
-      : "Ask mode · no file edits. Workspace context is sent automatically.";
+    mode === "yolo"
+      ? "Yolo mode · every permission is pre-approved. Workspace context is sent automatically."
+      : mode === "agent"
+        ? "Agent mode · workers may edit this workspace and may still ask before shell or network. Workspace context is sent automatically."
+        : `${hint} Workspace context is sent automatically.`;
 }
 
 function resizeInput() {
@@ -172,7 +188,27 @@ const help = document.getElementById("help");
 const configEl = document.getElementById("config");
 const presetEditor = document.getElementById("presetEditor");
 const configStatus = document.getElementById("configStatus");
+const configActionBtn = document.getElementById("configAccept");
 let configState = null;
+let savedSnapshot = "";
+let configDirty = false;
+let closeAfterSave = false;
+
+function snapshotPresets(presets) {
+  return JSON.stringify(presets || collectPresets());
+}
+
+function updateConfigAction() {
+  if (!configActionBtn) return;
+  configActionBtn.textContent = configDirty ? "Save" : "Accept";
+  configActionBtn.title = configDirty ? "Save these panel changes" : "Close and return to chat";
+}
+
+function syncConfigDirty() {
+  if (!presetEditor.querySelector(".preset-card")) return;
+  configDirty = snapshotPresets() !== savedSnapshot;
+  updateConfigAction();
+}
 
 function setHelpOpen(open) {
   help.hidden = !open;
@@ -235,9 +271,20 @@ function decodeSlot(value) {
   return { id: raw.slice(0, idx), model: raw.slice(idx + 2) };
 }
 
-function effortsFor(state, workerId) {
-  const byWorker = state.effortsByWorker || {};
-  return byWorker[workerId] || state.efforts || ["default", "low", "medium", "high", "max"];
+function catalogFor(state) {
+  return Object.keys(state.modelsByWorker || {}).length ? state.modelsByWorker : FALLBACK_CATALOG;
+}
+
+function effortsFor(state, workerId, modelId) {
+  const catalog = catalogFor(state);
+  const models = catalog[workerId] || [];
+  const found = models.find((m) => m.id === modelId);
+  if (found?.efforts?.length) return found.efforts;
+  if (!modelId || modelId === "default") {
+    const byWorker = state.effortsByWorker || {};
+    if (byWorker[workerId]?.length) return byWorker[workerId];
+  }
+  return ["default"];
 }
 
 function modelSelectHtml(state, selectedValue, slotName = "model") {
@@ -271,7 +318,7 @@ function memberRowHtml(state, pid, member, index) {
   const value = encodeSlot(id, model);
   return `<div class="member-row${missing ? " missing" : ""}" data-index="${index}">
     ${modelSelectHtml(state, value)}
-    ${effortSelect(`${pid}:${index}`, member.effort || "default", effortsFor(state, id), "effort")}
+    ${effortSelect(`${pid}:${index}`, member.effort || "default", effortsFor(state, id, model), "effort")}
     <button type="button" class="ghost icon-btn" data-remove title="Remove model">×</button>
   </div>`;
 }
@@ -300,15 +347,16 @@ function bindPresetEditor(state) {
       const wrap = card.querySelector(".member-list");
       wrap.insertAdjacentHTML("beforeend", memberRowHtml(state, pid, next, wrap.children.length));
       bindRow(state, wrap.lastElementChild);
+      syncConfigDirty();
     });
     for (const row of card.querySelectorAll(".member-row")) bindRow(state, row);
     const judgeModel = card.querySelector('select[data-slot="judge-model"]');
     judgeModel?.addEventListener("change", () => {
-      const { id } = decodeSlot(judgeModel.value);
+      const { id, model } = decodeSlot(judgeModel.value);
       const current = card.querySelector('select[data-slot="judge-effort"]');
       const prev = current?.value || "default";
       if (current) {
-        current.outerHTML = effortSelect(`judge-effort:${pid}`, prev, effortsFor(state, id), "judge-effort");
+        current.outerHTML = effortSelect(`judge-effort:${pid}`, prev, effortsFor(state, id, model), "judge-effort");
       }
     });
   }
@@ -317,34 +365,40 @@ function bindPresetEditor(state) {
 function bindRow(state, row) {
   const modelSel = row.querySelector('select[data-slot="model"]');
   const effortSel = row.querySelector('select[data-slot="effort"]');
-  row.querySelector("[data-remove]")?.addEventListener("click", () => row.remove());
+  row.querySelector("[data-remove]")?.addEventListener("click", () => {
+    row.remove();
+    syncConfigDirty();
+  });
   modelSel?.addEventListener("change", () => {
-    const { id } = decodeSlot(modelSel.value);
+    const { id, model } = decodeSlot(modelSel.value);
     const prev = effortSel.value;
-    const replacement = effortSelect(effortSel.getAttribute("data-field") || "effort", prev, effortsFor(state, id), "effort");
+    const replacement = effortSelect(
+      effortSel.getAttribute("data-field") || "effort",
+      prev,
+      effortsFor(state, id, model),
+      "effort"
+    );
     effortSel.outerHTML = replacement;
     row.classList.toggle("missing", !installedSet(state).has(id));
+    syncConfigDirty();
   });
 }
 
-function renderPresetEditor(state) {
+function renderPresetEditor(state, { captureBaseline = true } = {}) {
   if (!state) return;
   configState = state;
   const installed = installedSet(state);
   const title = document.getElementById("configTitle");
   const intro = document.getElementById("configIntro");
   const detected = document.getElementById("configDetected");
-  const acceptBtn = document.getElementById("configAccept");
   if (state.setupNeeded) {
     title.textContent = "Recommended setup";
     intro.textContent =
-      "These panels are suggested from the models your CLIs can run. Accept them, or switch Opus 5 for Sonnet 5 (or any other model) first.";
-    acceptBtn.hidden = false;
+      "These panels are suggested from the models your CLIs can run. Edit them if you want, then Accept to start chatting.";
   } else {
     title.textContent = "Configure Fusion panels";
     intro.innerHTML =
       "Pick specific models (Opus 5, Sonnet 5, GPT-5.6 Sol…) and thinking effort for each category. Saved to <code>~/.maestro-of-cerebellums/config.json</code>.";
-    acceptBtn.hidden = false;
   }
   renderOpenRouterStatus(state);
   detected.textContent = installed.size
@@ -364,7 +418,7 @@ function renderPresetEditor(state) {
         <div class="preset-judge">
           <span>Judge</span>
           ${modelSelectHtml(state, judgeValue, "judge-model")}
-          ${effortSelect(`judge-effort:${pid}`, judge.effort || "default", effortsFor(state, judge.id), "judge-effort")}
+          ${effortSelect(`judge-effort:${pid}`, judge.effort || "default", effortsFor(state, judge.id, judge.model), "judge-effort")}
         </div>
         <div class="member-list">${rows}</div>
         <button type="button" class="ghost add-model" data-add>+ Add model</button>
@@ -372,6 +426,13 @@ function renderPresetEditor(state) {
     })
     .join("");
   bindPresetEditor(state);
+  if (captureBaseline) {
+    savedSnapshot = snapshotPresets();
+    configDirty = false;
+    updateConfigAction();
+  } else {
+    syncConfigDirty();
+  }
 }
 
 function collectPresets() {
@@ -409,10 +470,8 @@ document.getElementById("orRefresh")?.addEventListener("click", () => {
   vscode.postMessage({ type: "saveOpenRouter", apiKey: apiKey.trim() || undefined, refresh: true });
 });
 
-document.getElementById("configSave").addEventListener("click", () => {
-  configStatus.textContent = "Saving…";
-  vscode.postMessage({ type: "saveConfig", presets: collectPresets() });
-});
+presetEditor.addEventListener("change", () => syncConfigDirty());
+
 document.getElementById("configReset").addEventListener("click", () => {
   const source = configState?.recommended || configState?.defaults;
   if (!source) return;
@@ -427,16 +486,24 @@ document.getElementById("configReset").addEventListener("click", () => {
     };
   }
   configState.presets = rebuilt;
-  renderPresetEditor(configState);
-  configStatus.textContent = "Recommendations restored — click Accept or Save.";
+  renderPresetEditor(configState, { captureBaseline: false });
+  configStatus.textContent = configDirty ? "Recommendations restored — click Save to keep them." : "Recommendations restored.";
 });
-document.getElementById("configAccept").addEventListener("click", () => {
-  if (configState?.recommended && configState.setupNeeded) {
-    configState.presets = configState.recommended;
-    renderPresetEditor(configState);
+
+configActionBtn.addEventListener("click", () => {
+  if (configDirty) {
+    closeAfterSave = false;
+    configStatus.textContent = "Saving…";
+    vscode.postMessage({ type: "saveConfig", presets: collectPresets() });
+    return;
   }
-  configStatus.textContent = "Saving recommendations…";
-  vscode.postMessage({ type: "saveConfig", presets: collectPresets() });
+  if (configState?.setupNeeded) {
+    closeAfterSave = true;
+    configStatus.textContent = "Saving…";
+    vscode.postMessage({ type: "saveConfig", presets: collectPresets() });
+    return;
+  }
+  setConfigOpen(false);
 });
 
 agentModeEl.addEventListener("change", updateHint);
@@ -452,11 +519,16 @@ window.addEventListener("message", (event) => {
   } else if (msg.type === "config") {
     renderPresetEditor(msg);
     if (msg.saved) {
-      configStatus.textContent = "Saved. You can close this panel and start chatting.";
+      if (closeAfterSave) {
+        closeAfterSave = false;
+        setConfigOpen(false);
+        return;
+      }
+      configStatus.textContent = "Saved.";
     } else if (msg.setupNeeded) {
       configEl.hidden = false;
       help.hidden = true;
-      configStatus.textContent = "First-time setup — accept these or change them.";
+      configStatus.textContent = "First-time setup — edit if you want, then Accept.";
     }
   } else if (msg.type === "route" || msg.type === "progress") {
     setStatus(msg.text || `Consulting ${msg.name || msg.worker}…`);

@@ -6,6 +6,7 @@ const os = require("os");
 
 const DEFAULT_PORT = 8788;
 const API_KEY = "shoal-local";
+const EXTENSION_VERSION = require("./package.json").version;
 
 let sidecar = null;
 let sidecarPort = DEFAULT_PORT;
@@ -96,7 +97,7 @@ function health(port = sidecarPort) {
 }
 
 function sidecarIsCurrent(info) {
-  return Boolean(info?.ok && info.name === "maestro-of-cerebellums");
+  return Boolean(info?.ok && info.name === "maestro-of-cerebellums" && info.version === EXTENSION_VERSION);
 }
 
 function killListener(port) {
@@ -348,22 +349,15 @@ async function runPrompt(webview, payload) {
 }
 
 async function openChat(context) {
-  try {
-    await vscode.commands.executeCommand("workbench.view.extension.maestro");
-    await vscode.commands.executeCommand("workbench.action.focusAuxiliaryBar");
-    await vscode.commands.executeCommand("maestro.sidebar.focus");
-    if (sidebarView) return sidebarView;
-  } catch {
-    // Older editors without an auxiliary bar fall through to a panel.
-  }
   if (currentPanel) {
-    currentPanel.reveal(vscode.ViewColumn.Beside);
+    currentPanel.reveal(vscode.window.activeTextEditor?.viewColumn ?? vscode.ViewColumn.Active);
     return currentPanel;
   }
+  const column = vscode.window.activeTextEditor?.viewColumn ?? vscode.ViewColumn.Active;
   const panel = vscode.window.createWebviewPanel(
     "maestro.chat",
-    "Maestro of Cerebellums",
-    vscode.ViewColumn.Beside,
+    "Maestro",
+    { viewColumn: column, preserveFocus: false },
     {
       enableScripts: true,
       retainContextWhenHidden: true,
@@ -427,7 +421,49 @@ async function showDoctor() {
 /**
  * @param {vscode.ExtensionContext} context
  */
+function registerUi(context) {
+  context.subscriptions.push(
+    vscode.window.registerWebviewViewProvider("maestro.sidebar", new MaestroViewProvider(context), {
+      webviewOptions: { retainContextWhenHidden: true },
+    }),
+    vscode.commands.registerCommand("maestro.openChat", () => openChat(context)),
+    vscode.commands.registerCommand("maestro.newChat", () => {
+      messages = [];
+      postToViews({ type: "reset" });
+    }),
+    vscode.commands.registerCommand("maestro.howItWorks", () => {
+      const wv = activeWebview();
+      if (wv) wv.postMessage({ type: "openHelp" });
+      else showHowItWorks(context);
+    }),
+    vscode.commands.registerCommand("maestro.configure", async () => {
+      const wv = activeWebview();
+      if (wv) {
+        wv.postMessage({ type: "openConfig" });
+        return;
+      }
+      const opened = await openChat(context);
+      setTimeout(() => {
+        const next = opened?.webview || activeWebview();
+        if (next) next.postMessage({ type: "openConfig" });
+      }, 200);
+    }),
+    vscode.commands.registerCommand("maestro.doctor", () => showDoctor()),
+    vscode.commands.registerCommand("maestro.restart", async () => {
+      if (sidecar) sidecar.kill();
+      sidecar = null;
+      killListener(DEFAULT_PORT);
+      await new Promise((r) => setTimeout(r, 200));
+      const info = await ensureSidecar(context);
+      updateStatus(info);
+      vscode.window.showInformationMessage("Maestro sidecar restarted.");
+    })
+  );
+}
+
 async function activate(context) {
+  registerUi(context);
+
   statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 80);
   statusBar.command = "maestro.openChat";
   statusBar.text = "$(organization) Maestro starting";
@@ -467,44 +503,6 @@ async function activate(context) {
     vscode.window.showErrorMessage(err instanceof Error ? err.message : String(err));
   }
 
-  context.subscriptions.push(
-    vscode.window.registerWebviewViewProvider("maestro.sidebar", new MaestroViewProvider(context), {
-      webviewOptions: { retainContextWhenHidden: true },
-    }),
-    vscode.commands.registerCommand("maestro.openChat", () => openChat(context)),
-    vscode.commands.registerCommand("maestro.newChat", () => {
-      messages = [];
-      postToViews({ type: "reset" });
-    }),
-    vscode.commands.registerCommand("maestro.howItWorks", () => {
-      const wv = activeWebview();
-      if (wv) wv.postMessage({ type: "openHelp" });
-      else showHowItWorks(context);
-    }),
-    vscode.commands.registerCommand("maestro.configure", async () => {
-      const wv = activeWebview();
-      if (wv) {
-        wv.postMessage({ type: "openConfig" });
-        return;
-      }
-      const opened = await openChat(context);
-      setTimeout(() => {
-        const next = opened?.webview || activeWebview();
-        if (next) next.postMessage({ type: "openConfig" });
-      }, 200);
-    }),
-    vscode.commands.registerCommand("maestro.doctor", () => showDoctor()),
-    vscode.commands.registerCommand("maestro.restart", async () => {
-      if (sidecar) sidecar.kill();
-      sidecar = null;
-      killListener(DEFAULT_PORT);
-      await new Promise((r) => setTimeout(r, 200));
-      const info = await ensureSidecar(context);
-      updateStatus(info);
-      vscode.window.showInformationMessage("Maestro sidecar restarted.");
-    })
-  );
-
   const participant = vscode.chat.createChatParticipant("maestro.local", async (request, _chatContext, stream, _token) => {
     stream.progress("Maestro is routing across your local CLIs…");
     try {
@@ -531,6 +529,76 @@ async function activate(context) {
   });
   participant.iconPath = themeIconUris(context);
   context.subscriptions.push(participant);
+  registerChatSessionsIfAvailable(context, participant);
+}
+
+function registerChatSessionsIfAvailable(context, participant) {
+  const chat = vscode.chat;
+  if (!chat) return;
+  const scheme = "maestro-session";
+  const type = "maestro";
+  const handleRequest = async (request, _ctx, stream) => {
+    stream.progress("Maestro is routing across your local CLIs…");
+    try {
+      const result = await streamChat(
+        {
+          model: "maestro-auto",
+          stream: true,
+          agentMode: "ask",
+          context: workspaceContext(),
+          messages: [{ role: "user", content: request.prompt }],
+        },
+        (event) => {
+          if (event.type === "progress") stream.progress(event.text);
+          if (event.type === "token") stream.markdown(event.text);
+        }
+      );
+      if (result.route?.length) {
+        stream.markdown(`\n\n${result.route.map((s) => `\`${s.role}: ${s.worker}\``).join(" · ")}`);
+      }
+    } catch (err) {
+      stream.markdown(err instanceof Error ? err.message : String(err));
+    }
+  };
+  try {
+    if (typeof chat.registerChatSessionContentProvider === "function") {
+      context.subscriptions.push(
+        chat.registerChatSessionContentProvider(
+          scheme,
+          {
+            provideChatSessionContent() {
+              return { title: "Maestro", history: [], requestHandler: handleRequest };
+            },
+          },
+          participant
+        )
+      );
+    }
+    if (typeof chat.createChatSessionItemController === "function") {
+      const controller = chat.createChatSessionItemController(type, async () => {});
+      controller.newChatSessionItemHandler = async () => {
+        const uri = vscode.Uri.from({ scheme, path: `/${Date.now()}` });
+        const item = controller.createChatSessionItem(uri, "Maestro");
+        controller.items.add(item);
+        return item;
+      };
+      context.subscriptions.push(controller);
+    } else if (typeof chat.registerChatSessionItemProvider === "function") {
+      const change = new vscode.EventEmitter();
+      const commit = new vscode.EventEmitter();
+      context.subscriptions.push(
+        change,
+        commit,
+        chat.registerChatSessionItemProvider(type, {
+          onDidChangeChatSessionItems: change.event,
+          onDidCommitChatSessionItem: commit.event,
+          provideChatSessionItems: () => [],
+        })
+      );
+    }
+  } catch (err) {
+    console.log("[maestro] native chat-session APIs unavailable", err);
+  }
 }
 
 function deactivate() {

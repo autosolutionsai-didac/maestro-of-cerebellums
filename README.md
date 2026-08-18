@@ -6,6 +6,8 @@ You get **one chat**. Behind it, a local sidecar classifies the request, routes 
 
 One chat. Behind it, a local conductor routes work across the coding CLIs you already have installed.
 
+Source: [github.com/autosolutionsai-didac/maestro-of-cerebellums](https://github.com/autosolutionsai-didac/maestro-of-cerebellums). How to put it on the VS Code Marketplace and Open VSX (Cursor / Antigravity): **[PUBLISH.md](PUBLISH.md)**.
+
 ## What you install
 
 1. A **sidecar** on `http://127.0.0.1:8788` (OpenAI-compatible).
@@ -32,8 +34,12 @@ Full in-editor guide: **Maestro: How It Works** (`extension/HOW_IT_WORKS.md`). A
 
 | Mode | What it does |
 |---|---|
-| **Ask** | Read-only. Workers explain or propose diffs. Default. |
-| **Agent** | Workers may edit the current workspace. |
+| **Ask** | One CLI, read-only Q&A. Default. |
+| **Plan** | One CLI writes steps and stops. No edits. |
+| **Architect** | Two CLIs design; a judge unifies. No edits. |
+| **Agent** | Workers may edit; they may still ask before shell or network. |
+| **Yolo** | Same as Agent, every permission pre-approved. |
+| **Review** | Review + verifier. Findings only. |
 | **Auto** | Classify → pick one CLI → verify/escalate if hard. |
 | **Quality** | Fusion: Opus 5 + GPT-5.6 Sol + Grok 4.6 → Opus 5 |
 | **Value** | Fusion: Sonnet 5 + GPT-5.6 Terra → Sonnet 5 |

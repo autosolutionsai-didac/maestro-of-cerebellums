@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 EXT="$ROOT/extension"
-PUBLISHER_DIR="autosolutionsai.maestro-of-cerebellums-0.1.5"
+PUBLISHER_DIR="autosolutionsai.maestro-of-cerebellums-0.1.10"
 
 echo "→ Checking local CLIs"
 if ! node "$EXT/sidecar/server.js" doctor; then

@@ -5,7 +5,10 @@ import { FUSION_PRESETS } from "./presets.js";
 import {
   MODEL_CATALOG,
   PROVIDER_LABELS,
+  KNOWN_EFFORTS,
   canonicalModelId,
+  clampStoredEffort,
+  effortsByWorker,
   memberKey,
   modelLabel,
   publicCatalog,
@@ -13,16 +16,8 @@ import {
 import { getOpenRouterKey, maskKey, mergeOpenRouterCatalog, readStoredOpenRouter } from "./openrouter.js";
 
 export const WORKER_IDS = ["claude", "openai", "grok", "kimi", "zai", "openrouter"];
-export const EFFORTS = ["default", "low", "medium", "high", "max"];
-/** Kimi K3: low / medium / high / max (plus default = config.toml). */
-export const EFFORTS_BY_WORKER = {
-  claude: ["default", "low", "medium", "high", "max"],
-  openai: ["default", "low", "medium", "high", "max"],
-  grok: ["default", "low", "medium", "high"],
-  kimi: ["default", "low", "medium", "high", "max"],
-  zai: ["default"],
-  openrouter: ["default", "low", "medium", "high", "max"],
-};
+export const EFFORTS = KNOWN_EFFORTS;
+export const EFFORTS_BY_WORKER = effortsByWorker();
 export const PRESET_IDS = ["quality", "value", "speed", "cheap"];
 
 const DEFAULT_PRESET_MEMBERS = {
@@ -44,7 +39,7 @@ const DEFAULT_PRESET_MEMBERS = {
   speed: {
     panel: [
       { id: "grok", model: "grok-4.6", effort: "low" },
-      { id: "kimi", model: "kimi-code/kimi-for-coding-highspeed", effort: "low" },
+      { id: "kimi", model: "kimi-code/kimi-for-coding-highspeed", effort: "default" },
       { id: "zai", model: "zai/GLM-5-Turbo", effort: "default" },
     ],
     judge: { id: "grok", model: "grok-4.6", effort: "low" },
@@ -80,7 +75,7 @@ const VALUE_FALLBACKS = [
 
 const SPEED_FALLBACKS = [
   { id: "grok", model: "grok-4.6", effort: "low" },
-  { id: "kimi", model: "kimi-code/kimi-for-coding-highspeed", effort: "low" },
+  { id: "kimi", model: "kimi-code/kimi-for-coding-highspeed", effort: "default" },
   { id: "zai", model: "zai/GLM-5-Turbo", effort: "default" },
   { id: "openai", model: "gpt-5.3-codex-spark", effort: "low" },
   { id: "openai", model: "gpt-5.6-luna", effort: "low" },
@@ -114,10 +109,12 @@ export function configPath() {
 }
 
 export function member(id, model, effort) {
+  const worker = id || "claude";
+  const resolved = canonicalModelId(worker, model);
   return {
-    id: id || "claude",
-    model: canonicalModelId(id, model),
-    effort: effort || "default",
+    id: worker,
+    model: resolved,
+    effort: clampStoredEffort(worker, resolved, effort),
   };
 }
 
@@ -131,8 +128,7 @@ function slot(raw, fallback) {
     return member(raw, "default", "default");
   }
   if (raw && typeof raw === "object" && raw.id) {
-    const effort = EFFORTS.includes(raw.effort) ? raw.effort : "default";
-    return member(String(raw.id), raw.model, effort);
+    return member(String(raw.id), raw.model, raw.effort);
   }
   return fallback ? member(fallback.id, fallback.model, fallback.effort) : null;
 }
@@ -215,7 +211,7 @@ export function recommendPresets(workers) {
     [
       { id: "grok", model: "grok-4.6", effort: "low" },
       { id: "openai", model: "gpt-5.6-luna", effort: "low" },
-      { id: "kimi", model: "kimi-code/kimi-for-coding-highspeed", effort: "low" },
+      { id: "kimi", model: "kimi-code/kimi-for-coding-highspeed", effort: "default" },
     ],
     available,
     speedPanel
@@ -224,7 +220,7 @@ export function recommendPresets(workers) {
     [
       { id: "grok", model: "grok-4.5", effort: "medium" },
       { id: "grok", model: "grok-4.6", effort: "medium" },
-      { id: "kimi", model: "kimi-code/k3", effort: "medium" },
+      { id: "kimi", model: "kimi-code/k3", effort: "high" },
     ],
     available,
     cheapPanel

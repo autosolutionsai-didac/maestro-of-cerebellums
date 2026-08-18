@@ -10,13 +10,15 @@ import {
   planRoute,
 } from "./engine.js";
 import { modelLabel } from "./models.js";
+import { applyWorkMode, normalizeWorkMode, workModePrompt } from "./workModes.js";
 
 function emit(onEvent, event) {
   if (onEvent) onEvent(event);
 }
 
 function workerTimeout(mode, agentMode) {
-  if (agentMode === "agent") return 600_000;
+  const work = normalizeWorkMode(agentMode);
+  if (work === "agent" || work === "yolo" || work === "architect") return 600_000;
   if (["quality", "value", "speed", "cheap", "ultra"].includes(mode)) return 360_000;
   if (mode === "fast") return 90_000;
   return 180_000;
@@ -26,13 +28,9 @@ function buildTaskPrompt({ messages, context, agentMode, extra }) {
   const parts = [];
   parts.push(
     "You are a specialist worker inside a local multi-model orchestra (multi-model).",
-    "Answer the user completely. Do not mention routing, other models, or that you are a worker unless asked."
+    "Answer the user completely. Do not mention routing, other models, or that you are a worker unless asked.",
+    workModePrompt(agentMode)
   );
-  if (agentMode !== "agent") {
-    parts.push("Ask/read-only mode: do not modify files. Explain or propose changes instead.");
-  } else {
-    parts.push("Agent mode: you may edit files in the workspace to complete the request.");
-  }
   if (context?.cwd) parts.push(`Workspace: ${context.cwd}`);
   if (context?.activeFile) parts.push(`Active file: ${context.activeFile}`);
   if (context?.selection) parts.push(`Selected text:\n${context.selection}`);
@@ -80,13 +78,14 @@ function buildSynthPrompt(question, drafts) {
 export async function orchestrate({
   messages,
   model = "maestro-auto",
-  agentMode = "ask",
+  agentMode: rawWorkMode = "ask",
   context = {},
   enabledWorkers = null,
   signal,
   onEvent,
 }) {
   const started = Date.now();
+  const agentMode = normalizeWorkMode(rawWorkMode);
   const workers = detectWorkers(enabledWorkers);
   const question = lastUserText(messages);
   const parsed = parseModel(model);
@@ -104,6 +103,7 @@ export async function orchestrate({
   } else {
     planned = planRoute(cls, workers, mode);
   }
+  planned = applyWorkMode(planned, cls, workers, agentMode);
 
   if (planned.error) throw new Error(planned.error);
 

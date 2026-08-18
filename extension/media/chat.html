@@ -12,7 +12,11 @@
         <p class="empty-copy">
           Stay on <button type="button" class="inline" data-mode="auto">Auto</button>
           and <button type="button" class="inline" data-agent="ask">Ask</button>
-          to route one CLI. Or run a Fusion panel:
+          for a read-only answer,
+          <button type="button" class="inline" data-agent="plan">Plan</button> before edits,
+          or <button type="button" class="inline" data-agent="agent">Agent</button> to implement
+          (<button type="button" class="inline" data-agent="yolo">Yolo</button> skips every prompt).
+          Fusion panels:
           <button type="button" class="inline" data-mode="quality">Quality</button>,
           <button type="button" class="inline" data-mode="value">Value</button>,
           <button type="button" class="inline" data-mode="speed">Speed</button>,
@@ -45,7 +49,6 @@
         <div class="sheet-actions">
           <button class="ghost" id="configReset" type="button">Reset</button>
           <button class="primary" id="configAccept" type="button">Accept</button>
-          <button class="primary" id="configSave" type="button">Save</button>
         </div>
         <p class="muted" id="configStatus"></p>
       </div>
@@ -64,7 +67,15 @@
           <li><b>Run</b> — launches a local CLI, or calls OpenRouter if you picked one of those models.</li>
           <li><b>Verify</b> — hard tasks get a second CLI. REVISE can escalate.</li>
         </ol>
-        <p><b>Ask</b> is read-only. <b>Agent</b> may edit this workspace.</p>
+        <p><b>Work modes</b> (how the orchestra behaves):</p>
+        <ul>
+          <li><b>Ask</b> — one CLI, read-only Q&amp;A. No fan-out, no edits.</li>
+          <li><b>Plan</b> — one CLI writes numbered steps and stops. Claude/Cline Plan style. No edits.</li>
+          <li><b>Architect</b> — two CLIs design in parallel, a judge unifies. Roo Architect style. No edits.</li>
+          <li><b>Agent</b> — CLIs may edit the workspace. File edits are accepted; they may still ask before shell or network.</li>
+          <li><b>Yolo</b> — same as Agent, but every permission is pre-approved. Nothing prompts.</li>
+          <li><b>Review</b> — review-strong CLI plus a verifier. Findings only, no edits.</li>
+        </ul>
       </div>
     </aside>
 
@@ -83,9 +94,13 @@
             <option value="cheap">Cheap</option>
             <option value="fast">Fast</option>
           </select>
-          <select id="agentMode" title="Whether workers may edit the workspace">
+          <select id="agentMode" title="How Maestro orchestrates this turn">
             <option value="ask">Ask</option>
+            <option value="plan">Plan</option>
+            <option value="architect">Architect</option>
             <option value="agent">Agent</option>
+            <option value="yolo">Yolo</option>
+            <option value="review">Review</option>
           </select>
           <span class="workers" id="workers"></span>
           <button class="send" id="send" type="submit" title="Send" aria-label="Send">
@@ -94,6 +109,7 @@
             </svg>
           </button>
         </div>
+        <p class="work-hint" id="workHint"></p>
       </form>
     </footer>
     <script src="{{js}}"></script>

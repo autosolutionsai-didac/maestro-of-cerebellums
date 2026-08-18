@@ -32,10 +32,14 @@ Keep **Ask** unless you want workers to edit the workspace.
 | Cheap | Fusion: Kimi K3 + GLM-5.3 → Grok 4.5 |
 | Fast single | Cheapest capable CLI only |
 
-**Permissions**
+**Work mode**
 
-| Ask | Read-only. Default. |
-| Agent | Workers may edit the current workspace. |
+| Ask | One CLI, read-only Q&A |
+| Plan | One CLI writes steps and stops. No edits |
+| Architect | Two CLIs design; a judge unifies. No edits |
+| Agent | Workers may edit; they may still ask before shell or network |
+| Yolo | Same as Agent, every permission pre-approved |
+| Review | Review + verifier. Findings only |
 
 ## Commands
 

@@ -167,13 +167,19 @@ textarea {
   background: transparent;
   border: 0;
   padding: 2px 4px 2px 0;
-  max-width: 110px;
+  max-width: 128px;
   outline: none;
   color: var(--muted);
   cursor: pointer;
 }
 .composer-bar select:hover,
 .composer-bar select:focus { color: var(--fg); }
+.work-hint {
+  margin: 4px 0 0;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--muted);
+}
 
 .workers {
   display: flex;
@@ -240,8 +246,8 @@ textarea {
   color: var(--muted);
   line-height: 1.5;
 }
-.sheet-body p, .sheet-body ol { margin: 0 0 8px; }
-.sheet-body ol { padding-left: 18px; }
+.sheet-body p, .sheet-body ol, .sheet-body ul { margin: 0 0 8px; }
+.sheet-body ol, .sheet-body ul { padding-left: 18px; }
 .sheet-body code {
   font-size: 11px;
   color: var(--fg);

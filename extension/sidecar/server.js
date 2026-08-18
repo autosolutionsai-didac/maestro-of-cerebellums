@@ -1,7 +1,14 @@
 #!/usr/bin/env node
+import fs from "node:fs";
 import http from "node:http";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { orchestrate, publicStatus } from "./orchestrate.js";
 import { lastUserText, parseModel } from "./engine.js";
+
+const PACKAGE_VERSION = JSON.parse(
+  fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "package.json"), "utf8")
+).version;
 
 const DEFAULT_PORT = Number(process.env.MAESTRO_PORT || process.env.FUGU_PORT || 8788);
 const HOST = process.env.MAESTRO_HOST || process.env.FUGU_HOST || "127.0.0.1";
@@ -178,7 +185,7 @@ const server = http.createServer(async (req, res) => {
   const url = new URL(req.url || "/", `http://${req.headers.host}`);
 
   if (req.method === "GET" && url.pathname === "/healthz") {
-    send(res, 200, { ok: true, name: "maestro-of-cerebellums", ...publicStatus() });
+    send(res, 200, { ok: true, name: "maestro-of-cerebellums", version: PACKAGE_VERSION, ...publicStatus() });
     return;
   }
 
